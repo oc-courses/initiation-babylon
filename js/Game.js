@@ -8,18 +8,22 @@ Game = function(canvasId) {
     var canvas = document.getElementById(canvasId);
     var engine = new BABYLON.Engine(canvas, true);
     var _this = this;
-    
+    _this.actualTime = Date.now();
     // On initie la scène avec une fonction associé à l'objet Game
     this.scene = this._initScene(engine);
-
-    // On apelle Player
+    
     var _player = new Player(_this, canvas);
 
-    // On apelle Arena
     var _arena = new Arena(_this);
-    
+
     // Permet au jeu de tourner
     engine.runRenderLoop(function () {
+        // Récuperet le ratio par les fps
+        _this.fps = Math.round(1000/engine.getDeltaTime());
+
+        // Checker le mouvement du joueur en lui envoyant le ratio de déplacement
+        _player._checkMove((_this.fps)/60);
+
         _this.scene.render();
     });
 
@@ -41,3 +45,18 @@ Game.prototype = {
         return scene;
     }
 };
+
+// ------------------------- TRANSFO DE DEGRES/RADIANS 
+function degToRad(deg)
+{
+   return (Math.PI*deg)/180
+}
+// ----------------------------------------------------
+
+// -------------------------- TRANSFO DE DEGRES/RADIANS 
+function radToDeg(rad)
+{
+   // return (Math.PI*deg)/180
+   return (rad*180)/Math.PI
+}
+// ----------------------------------------------------
