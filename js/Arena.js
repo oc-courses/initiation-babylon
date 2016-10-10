@@ -25,6 +25,8 @@ Arena = function(game) {
     boxArena.scaling.z = 0.8;
     boxArena.scaling.x = 3.5;
 
+    boxArena.checkCollisions = true;
+
     var columns = [];
     var numberColumn = 6;
     var sizeArena = 100*boxArena.scaling.x -50;
@@ -35,13 +37,16 @@ Arena = function(game) {
             let mainCylinder = BABYLON.Mesh.CreateCylinder("cyl0-"+i, 30, 5, 5, 20, 4, scene);
             mainCylinder.position = new BABYLON.Vector3(-sizeArena/2,30/2,-20 + (40 * i));
             mainCylinder.material = materialWall;
-            columns[i].push(mainCylinder);
+            columns[i].push(mainCylinder); 
+            mainCylinder.checkCollisions = true;
 
             if(numberColumn>1){
                 for (let y = 1; y <= numberColumn - 1; y++) {
                     let newCylinder = columns[i][0].clone("cyl"+y+"-"+i);
                     newCylinder.position = new BABYLON.Vector3(-(sizeArena/2) + (ratio*y),30/2,columns[i][0].position.z);
+                    newCylinder.checkCollisions = true;
                     columns[i].push(newCylinder);
+
                 }
             }
         }

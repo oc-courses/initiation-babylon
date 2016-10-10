@@ -53,12 +53,13 @@ Player = function(game, canvas) {
         }
     }, false);
 
+    // Quand la souris bouge dans la scène
     window.addEventListener("mousemove", function(evt) {
         if(_this.rotEngaged === true){
-            _this.camera.rotation.y+=evt.movementX * 0.001 * (_this.angularSensibility / 250);
-            var nextRotationX = _this.camera.rotation.x + (evt.movementY * 0.001 * (_this.angularSensibility / 250));
+            _this.camera.playerBox.rotation.y+=evt.movementX * 0.001 * (_this.angularSensibility / 250);
+            var nextRotationX = _this.camera.playerBox.rotation.x + (evt.movementY * 0.001 * (_this.angularSensibility / 250));
             if( nextRotationX < degToRad(90) && nextRotationX > degToRad(-90)){
-                _this.camera.rotation.x+=evt.movementY * 0.001 * (_this.angularSensibility / 250);
+                _this.camera.playerBox.rotation.x+=evt.movementY * 0.001 * (_this.angularSensibility / 250);
             }
         }
     }, false);
@@ -96,20 +97,38 @@ Player = function(game, canvas) {
 
 Player.prototype = {
     _initCamera : function(scene, canvas) {
-        // On crée la caméra
-        this.camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(-20, 5, 0), scene);
-        
-        // On demande a la caméra de regarder au point zéro de la scène
-        this.camera.setTarget(BABYLON.Vector3.Zero());
-        
-        // Axe de mouvement X et Z
-        this.camera.axisMovement = [false,false,false,false];
+        var playerBox = BABYLON.Mesh.CreateBox("box1", 3, scene);
+        playerBox.position = new BABYLON.Vector3(-20, 5, 0);
+        playerBox.ellipsoid = new BABYLON.Vector3(2, 2, 2);
 
-        // Appel de la création des armes
-        this.camera.weapons = new Weapons(this);
+        // On crée la caméra
+        this.camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, 0), scene);
+        this.camera.playerBox = playerBox
+        this.camera.parent = this.camera.playerBox;
+
+        // Ajout des collisions avec playerBox
+        this.camera.playerBox.checkCollisions = true;
+        this.camera.playerBox.applyGravity = true;
 
         // Si le joueur est en vie ou non
         this.isAlive = true;
+
+        // Pour savoir que c'est le joueur principal
+        this.camera.isMain = true;
+
+        // On crée les armes !
+        this.camera.weapons = new Weapons(this);
+
+        // On ajoute l'axe de mouvement
+        this.camera.axisMovement = [false,false,false,false];
+
+        var hitBoxPlayer = BABYLON.Mesh.CreateBox("hitBoxPlayer", 3, scene);
+        hitBoxPlayer.parent = this.camera.playerBox;
+        hitBoxPlayer.scaling.y = 2;
+        hitBoxPlayer.isPickable = true;
+        hitBoxPlayer.isMain = true;
+
+
     },
     handleUserMouseDown : function() {
         console.log('test')
@@ -153,24 +172,37 @@ Player.prototype = {
     _checkMove : function(ratioFps) {
         let relativeSpeed = this.speed / ratioFps;
         if(this.camera.axisMovement[0]){
-            this.camera.position = new BABYLON.Vector3(this.camera.position.x + (Math.sin(this.camera.rotation.y) * relativeSpeed),
-                this.camera.position.y,
-                this.camera.position.z + (Math.cos(this.camera.rotation.y) * relativeSpeed));
+            forward = new BABYLON.Vector3(
+                parseFloat(Math.sin(parseFloat(this.camera.playerBox.rotation.y))) * relativeSpeed, 
+                0, 
+                parseFloat(Math.cos(parseFloat(this.camera.playerBox.rotation.y))) * relativeSpeed
+            );
+            this.camera.playerBox.moveWithCollisions(forward);
         }
         if(this.camera.axisMovement[1]){
-            this.camera.position = new BABYLON.Vector3(this.camera.position.x + (Math.sin(this.camera.rotation.y) * -relativeSpeed),
-                this.camera.position.y,
-                this.camera.position.z + (Math.cos(this.camera.rotation.y) * -relativeSpeed));
+            backward = new BABYLON.Vector3(
+                parseFloat(-Math.sin(parseFloat(this.camera.playerBox.rotation.y))) * relativeSpeed, 
+                0, 
+                parseFloat(-Math.cos(parseFloat(this.camera.playerBox.rotation.y))) * relativeSpeed
+            );
+            this.camera.playerBox.moveWithCollisions(backward);
         }
         if(this.camera.axisMovement[2]){
-            this.camera.position = new BABYLON.Vector3(this.camera.position.x + Math.sin(this.camera.rotation.y + degToRad(-90)) * relativeSpeed,
-                this.camera.position.y,
-                this.camera.position.z + Math.cos(this.camera.rotation.y + degToRad(-90)) * relativeSpeed);
+            left = new BABYLON.Vector3(
+                parseFloat(Math.sin(parseFloat(this.camera.playerBox.rotation.y) + degToRad(-90))) * relativeSpeed, 
+                0, 
+                parseFloat(Math.cos(parseFloat(this.camera.playerBox.rotation.y) + degToRad(-90))) * relativeSpeed
+            );
+            this.camera.playerBox.moveWithCollisions(left);
         }
         if(this.camera.axisMovement[3]){
-            this.camera.position = new BABYLON.Vector3(this.camera.position.x + Math.sin(this.camera.rotation.y + degToRad(-90)) * - relativeSpeed,
-                this.camera.position.y,
-                this.camera.position.z + Math.cos(this.camera.rotation.y + degToRad(-90)) * - relativeSpeed);
+            right = new BABYLON.Vector3(
+                parseFloat(-Math.sin(parseFloat(this.camera.playerBox.rotation.y) + degToRad(-90))) * relativeSpeed, 
+                0, 
+                parseFloat(-Math.cos(parseFloat(this.camera.playerBox.rotation.y) + degToRad(-90))) * relativeSpeed
+            );
+            this.camera.playerBox.moveWithCollisions(right);
         }
+        this.camera.playerBox.moveWithCollisions(new BABYLON.Vector3(0,(-1.5) * relativeSpeed ,0));
     },
 };

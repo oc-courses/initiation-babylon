@@ -72,23 +72,20 @@ Weapons.prototype = {
 	},
 	launchFire : function() {
 	    if (this.canFire) {
-	        var renderWidth = this.Player.game.engine.getRenderWidth(true);
-	        var renderHeight = this.Player.game.engine.getRenderHeight(true);
+	        // console.log('Pew !');
 	        
-	        var direction = this.Player.game.scene.pick(renderWidth/2,renderHeight/2);
-	        direction = direction.pickedPoint.subtractInPlace(this.Player.camera.position);
-	        direction = direction.normalize();
-
-	        this.createRocket(this.Player.camera,direction)
+	        this.createRocket(this.Player.camera.playerBox)
 	        this.canFire = false; 
 	    } else {
 	        // Nothing to do : cannot fire
 	    }
 	},
-	createRocket : function(playerPosition, direction) {
-	    var positionValue = this.rocketLauncher.absolutePosition.clone();
+	createRocket : function(playerPosition) {
+	    var positionValue = playerPosition.position;
 	    var rotationValue = playerPosition.rotation; 
-	    var newRocket = BABYLON.Mesh.CreateBox("rocket", 1, this.Player.game.scene);
+	    var Player = this.Player;
+	    var newRocket = BABYLON.Mesh.CreateBox("rocket", 1, Player.game.scene);
+	    
 	    newRocket.direction = new BABYLON.Vector3(
 	        Math.sin(rotationValue.y) * Math.cos(rotationValue.x),
 	        Math.sin(-rotationValue.x),
