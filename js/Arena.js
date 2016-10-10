@@ -25,10 +25,10 @@ Arena = function(game) {
     // shadowGenerator1.bias = 0.0005;
 
     // // Material pour le sol
-    // var materialGround = new BABYLON.StandardMaterial("wallTexture", scene);
-    // materialGround.diffuseTexture = new BABYLON.Texture("assets/images/tile.jpg", scene);
-    // materialGround.diffuseTexture.uScale = 8.0;
-    // materialGround.diffuseTexture.vScale = 8.0;
+    var materialGround = new BABYLON.StandardMaterial("wallTexture", scene);
+    materialGround.diffuseTexture = new BABYLON.Texture("assets/images/tile.jpg", scene);
+    materialGround.diffuseTexture.uScale = 8.0;
+    materialGround.diffuseTexture.vScale = 8.0;
 
     // Material pour les objets
     var materialWall = new BABYLON.StandardMaterial("groundTexture", scene);
