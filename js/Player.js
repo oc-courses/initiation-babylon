@@ -2,6 +2,9 @@ Player = function(game, canvas) {
     // _this est l'accès à la caméraà l'interieur de Player
     var _this = this;
 
+    // Si le tir est activée ou non
+    this.weponShoot = false;
+
     // Le jeu, chargé dans l'objet Player
     this.game = game;
 
@@ -60,6 +63,26 @@ Player = function(game, canvas) {
         }
     }, false);
 
+    // On récupère le canvas de la scène 
+    var canvas = this.game.scene.getEngine().getRenderingCanvas();
+
+    // On affecte le clic et on vérifie qu'il est bien utilisé dans la scène (_this.controlEnabled)
+    canvas.addEventListener("mousedown", function(evt) {
+
+        if (_this.controlEnabled && !_this.weponShoot) {
+            _this.weponShoot = true;
+            _this.handleUserMouseDown();
+        }
+    }, false);
+
+    // On fais pareil quand l'utilisateur relache le clic de la souris
+    canvas.addEventListener("mouseup", function(evt) {
+        if (_this.controlEnabled && _this.weponShoot) {
+            _this.weponShoot = false;
+            _this.handleUserMouseUp();
+        }
+    }, false);
+
     
     // Initialisation de la caméra
     this._initCamera(this.game.scene, canvas); 
@@ -76,14 +99,28 @@ Player.prototype = {
         // On crée la caméra
         this.camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(-20, 5, 0), scene);
         
-        // Axe de mouvement X et Z
-        this.camera.axisMovement = [false,false,false,false];
-        
-        // Si le joueur est en vie ou non
-        this.isAlive = true;
-        
         // On demande a la caméra de regarder au point zéro de la scène
         this.camera.setTarget(BABYLON.Vector3.Zero());
+        
+        // Axe de mouvement X et Z
+        this.camera.axisMovement = [false,false,false,false];
+
+        // Appel de la création des armes
+        this.camera.weapons = new Weapons(this);
+
+        // Si le joueur est en vie ou non
+        this.isAlive = true;
+    },
+    handleUserMouseDown : function() {
+        console.log('test')
+        if(this.isAlive === true){
+            this.camera.weapons.fire();
+        }
+    },
+    handleUserMouseUp : function() {
+        if(this.isAlive === true){
+            this.camera.weapons.stopFire();
+        }
     },
     _initPointerLock : function() {
         var _this = this;

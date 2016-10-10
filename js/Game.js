@@ -7,6 +7,7 @@ Game = function(canvasId) {
     // Canvas et engine défini ici
     var canvas = document.getElementById(canvasId);
     var engine = new BABYLON.Engine(canvas, true);
+    this.engine = engine;
     var _this = this;
     _this.actualTime = Date.now();
     // On initie la scène avec une fonction associé à l'objet Game
@@ -18,6 +19,7 @@ Game = function(canvasId) {
 
     // Permet au jeu de tourner
     engine.runRenderLoop(function () {
+
         // Récuperet le ratio par les fps
         _this.fps = Math.round(1000/engine.getDeltaTime());
 
@@ -25,6 +27,11 @@ Game = function(canvasId) {
         _player._checkMove((_this.fps)/60);
 
         _this.scene.render();
+        
+        // Si launchBullets est a true, on tire
+        if(_player.camera.weapons.launchBullets === true){
+            _player.camera.weapons.launchFire();
+        }
     });
 
     // Ajuste la vue 3D si la fenetre est agrandi ou diminué
