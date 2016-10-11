@@ -10,7 +10,7 @@ Game = function(canvasId) {
     this.engine = engine;
     var _this = this;
     _this.actualTime = Date.now();
-    
+
     this.allSpawnPoints = [
         new BABYLON.Vector3(-20, 5, 0),
         new BABYLON.Vector3(0, 5, 0),
@@ -20,6 +20,10 @@ Game = function(canvasId) {
 
     // On initie la scène avec une fonction associé à l'objet Game
     this.scene = this._initScene(engine);
+
+    // Ajout de l'armurerie
+    var armory = new Armory(this);
+    _this.armory = armory;
     
     var _player = new Player(_this, canvas);
 
@@ -33,6 +37,9 @@ Game = function(canvasId) {
 
     // Les explosions qui découle des roquettes
     this._explosionRadius = [];
+
+    // Les tirs de lasers
+    this._lasers = [];
 
     // Permet au jeu de tourner
     engine.runRenderLoop(function () {
@@ -51,6 +58,9 @@ Game = function(canvasId) {
         // On apelle no deux fonctions de calcul pour les roquettes
         _this.renderRockets();
         _this.renderExplosionRadius();
+
+        // On calcule la diminution de la taille du laser
+        _this.renderLaser();
         
         // On rend la scène
         _this.scene.render();
@@ -132,7 +142,18 @@ Game.prototype = {
                 }
             }
         }
-    }
+    },
+    renderLaser : function(){
+        if(this._lasers.length > 0){
+            for (var i = 0; i < this._lasers.length; i++) {
+                this._lasers[i].edgesWidth -= 0.5;
+                if(this._lasers[i].edgesWidth<=0){
+                    this._lasers[i].dispose();
+                    this._lasers.splice(i, 1);
+                }
+            }
+        }
+    },
 };
 
 // ------------------------- TRANSFO DE DEGRES/RADIANS 

@@ -1,6 +1,9 @@
 Weapons = function(Player) {
     // On permet d'accéder à Player n'importe ou dans Weapons
     this.Player = Player;
+
+    // Import de l'armurerie depuis Game
+	this.Armory = Player.game.armory;
     
     // Positions selon l'arme non utilisé
     this.bottomPosition = new BABYLON.Vector3(0.5,-2.5,1);
@@ -8,19 +11,27 @@ Weapons = function(Player) {
     // Changement de Y quand l'arme est séléctionné
     this.topPositionY = -0.5;
 
-    // Créons notre arme
-    this.rocketLauncher = this.newWeapon(Player);
+    // Ajout de l'inventaire
+	this.inventory = [];
 
-    // Cadence de tir
-	this.fireRate = 800;
+	// Créons notre lance roquette
+	var ezekiel = this.newWeapon('Ezekiel')
+	this.inventory[0] = ezekiel;
 
-	// Delta de calcul pour savoir quand le tir est a nouveau disponible
+	// Notre arme actuelle est Ezekiel, qui se trouve en deuxième position
+	// dans le tableau des armes dans Armory
+	this.actualWeapon = this.inventory.length -1;
+
+	// On dis que notre arme en main est l'arme active
+	this.inventory[this.actualWeapon].isActive = true;
+
+	// On dis que la cadence est celle de l'arme actuelle (grace à typeWeapon)
+	this.fireRate = this.Armory.weapons[this.inventory[this.actualWeapon].typeWeapon].setup.cadency;
+
 	this._deltaFireRate = this.fireRate;
 
-	// Variable qui va changer selon le temps
 	this.canFire = true;
 
-	// Variable qui changera à l'appel du tir depuis le Player
 	this.launchBullets = false;
 
 	// _this va nous permettre d'acceder à l'objet depuis des fonctions que nous utiliserons plus tard
@@ -42,28 +53,41 @@ Weapons = function(Player) {
 };
 
 Weapons.prototype = {
-    newWeapon : function(Player) {
-        var newWeapon;
-        newWeapon = BABYLON.Mesh.CreateBox('rocketLauncher', 0.5, Player.game.scene);
+    newWeapon : function(typeWeapon) {
+	    var newWeapon;
+	    for (var i = 0; i < this.Armory.weapons.length; i++) {
+	        if(this.Armory.weapons[i].name === typeWeapon){
 
-        // Nous faisons en sorte d'avoir une arme d'apparence plus longue que large
-        newWeapon.scaling = new BABYLON.Vector3(1,0.7,2);
+	            newWeapon = BABYLON.Mesh.CreateBox('rocketLauncher', 0.5, this.Player.game.scene);
 
-        // On l'associe à la caméra pour qu'il bouge de la même facon
-        newWeapon.parent = Player.camera;
+	            // Nous faisons en sorte d'avoir une arme d'apparence plus longue que large
+	            newWeapon.scaling = new BABYLON.Vector3(1,0.7,2);
 
-        // On positionne le mesh APRES l'avoir attaché à la caméra
-        newWeapon.position = this.bottomPosition.clone();
-        newWeapon.position.y = this.topPositionY;
+	            // On l'associe à la caméra pour qu'il bouge de la même facon
+	            newWeapon.parent = this.Player.camera;
 
-        // Ajoutons un material Rouge pour le rendre plus visible
-        var materialWeapon = new BABYLON.StandardMaterial('rocketLauncherMat', Player.game.scene);
-        materialWeapon.diffuseColor=new BABYLON.Color3(1,0,0);
+	            // On positionne le mesh APRES l'avoir attaché à la caméra
+	            newWeapon.position = this.bottomPosition.clone();
 
-        newWeapon.material = materialWeapon;
+	            newWeapon.isPickable = false;
 
-        return newWeapon
-    },
+	            // Ajoutons un material de l'arme pour le rendre plus visible
+	            var materialWeapon = new BABYLON.StandardMaterial('rocketLauncherMat', this.Player.game.scene);
+	            materialWeapon.diffuseColor=this.Armory.weapons[i].setup.colorMesh;
+
+	            newWeapon.material = materialWeapon;
+	            
+	            newWeapon.typeWeapon = i;
+
+	            newWeapon.isActive = false;
+	            break;
+	        }else if(i === this.Armory.weapons.length -1){
+	            console.log('UNKNOWN WEAPON');
+	        }
+	    };
+
+	    return newWeapon
+	},
     fire : function(pickInfo) {
 	    this.launchBullets = true;
 	},
@@ -72,25 +96,60 @@ Weapons.prototype = {
 	},
 	launchFire : function() {
 	    if (this.canFire) {
-	        // console.log('Pew !');
-	        
-	        this.createRocket(this.Player.camera.playerBox)
-	        this.canFire = false; 
+	        // Id de l'arme en main
+			var idWeapon = this.inventory[this.actualWeapon].typeWeapon;
+
+			// Détermine la taille de l'écran
+			var renderWidth = this.Player.game.engine.getRenderWidth(true);
+			var renderHeight = this.Player.game.engine.getRenderHeight(true);
+
+			// Cast un rayon au centre de l'écran
+			var direction = this.Player.game.scene.pick(renderWidth/2,renderHeight/2);
+			var direction = this.Player.game.scene.pick(renderWidth/2,renderHeight/2,function (item) {
+			    if (item.name == "playerBox" || item.name == "weapon" || item.id == "hitBoxPlayer")
+			        return false;
+			    else
+			        return true;
+			});
+			console.log(direction)
+			// Si l'arme est une arme de distance
+			if(this.Armory.weapons[idWeapon].type === 'ranged'){
+		        if(this.Armory.weapons[idWeapon].setup.ammos.type === 'rocket'){
+		            // Nous devons tirer une roquette
+		            direction = direction.pickedPoint.subtractInPlace(this.Player.camera.playerBox.position);
+		            direction = direction.normalize();
+
+		            // On crée la roquette
+		            this.createRocket(this.Player.camera.playerBox,direction);
+		        }else if(this.Armory.weapons[idWeapon].setup.ammos.type === 'bullet'){
+		            // Nous devons tirer des balles simples
+		            this.shootBullet(direction)
+		        }else{
+		           // Nous devons tirer au laser
+		           this.createLaser()
+		        }
+			}else{
+			    // Si ce n'est pas une arme a distance, il faut attaquer au corp a corp
+			}
+			this.canFire = false; 
 	    } else {
 	        // Nothing to do : cannot fire
 	    }
 	},
-	createRocket : function(playerPosition) {
+	createRocket : function(playerPosition, direction) {
 	    var positionValue = playerPosition.position;
 	    var rotationValue = playerPosition.rotation; 
 	    var Player = this.Player;
 	    var newRocket = BABYLON.Mesh.CreateBox("rocket", 1, Player.game.scene);
+
+	    // Permet de connaitre l'id de l'arme dans Armory.js
+		var idWeapon = this.inventory[this.actualWeapon].typeWeapon;
+
+		// Les paramètres de l'arme
+		var setupRocket = this.Armory.weapons[idWeapon].setup.ammos;
 	    
-	    newRocket.direction = new BABYLON.Vector3(
-	        Math.sin(rotationValue.y) * Math.cos(rotationValue.x),
-	        Math.sin(-rotationValue.x),
-	        Math.cos(rotationValue.y) * Math.cos(rotationValue.x)
-	    )
+	    newRocket.direction = direction;
+
 	    newRocket.position = new BABYLON.Vector3(
 	        positionValue.x + (newRocket.direction.x * 3) , 
 	        positionValue.y + (newRocket.direction.y * 3) ,
@@ -99,49 +158,59 @@ Weapons.prototype = {
 	    newRocket.scaling = new BABYLON.Vector3(0.5,0.5,1);
 
 	    newRocket.material = new BABYLON.StandardMaterial("textureWeapon", this.Player.game.scene);
-	    newRocket.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+
+	    // Paramètres récupéré depuis Armory
+	    newRocket.material.diffuseColor = this.Armory.weapons[idWeapon].setup.colorMesh;
+		newRocket.paramsRocket = this.Armory.weapons[idWeapon].setup;
 
 	    // On donne accès à Player dans registerBeforeRender
 	    var Player = this.Player;
 
 	    this.Player.game._rockets.push(newRocket);
+	},
+	shootBullet : function(meshFound) {
+	    if(meshFound.hit && meshFound.pickedMesh.isPlayer){
+	        // On a touché un joueur
+	    }else{
+	        // L'arme ne touche pas de joueur
+	        console.log('Not Hit Bullet')
+	    }
+	},
+	createLaser : function() {
+	    var setupLaser = this.Armory.weapons[this.actualWeapon].setup.ammos;
 
-	 //    newRocket.registerAfterRender(function(){
-		//     // On bouge la roquette vers l'avant
-		//     newRocket.translate(new BABYLON.Vector3(0,0,1),1,0);
+		var renderWidth = this.Player.game.engine.getRenderWidth(true);
+		var renderHeight = this.Player.game.engine.getRenderHeight(true);
+
+		var positionValue = this.inventory[this.actualWeapon].absolutePosition.clone();
+
+		var directionPoint = this.Player.game.scene.pick(renderWidth/2,renderHeight/2,function (item) {
+		    if (item.name == "playerBox" || item.name == "weapon" || item.id == "hitBoxPlayer")
+		        return false;
+		    else
+		        return true;
+		});
+		if(directionPoint.hit){
+
+		    var laserPosition = positionValue;
+		    // On crée une ligne tracé entre le pickedPoint et le canon de l'arme
+		    let line = BABYLON.Mesh.CreateLines("lines", [
+		                laserPosition,
+		                directionPoint.pickedPoint
+		    ], this.Player.game.scene);
+		    // On donne une couleur aléatoire
+		    var colorLine = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+		    line.color = colorLine;
 		    
-		//     // On crée un rayon qui part de la base de la roquette vers l'avant
-		//     var rayRocket = new BABYLON.Ray(newRocket.position,newRocket.direction);
-		    
-		//     // Onregarde quel est le premier objet qu'on touche
-		//     var meshFound = newRocket.getScene().pickWithRay(rayRocket);
-		    
-		//     // Si la distance au premier objet touché est inférieur a 10, on détruit la roquette
-		//     if(!meshFound || meshFound.distance < 10){
-		// 	    // On vérifie qu'on a bien touché quelque chose
-		// 	    if(meshFound.pickedMesh){
-		// 	        // On crée une sphere qui représentera la zone d'impact
-		// 	        var explosionRadius = BABYLON.Mesh.CreateSphere("sphere", 5.0, 20, Player.game.scene);
-		// 	        // On positionne la sphère la ou il y a eu impact
-		// 	        explosionRadius.position = meshFound.pickedPoint;
-		// 	        // On fais en sorte que les explosions ne soit pas considéré pour le Ray de la roquette
-		// 	        explosionRadius.isPickable = false;
-		// 	        // On crée un petit material orange
-		// 	        explosionRadius.material = new BABYLON.StandardMaterial("textureExplosion", Player.game.scene);
-		// 	        explosionRadius.material.diffuseColor = new BABYLON.Color3(1,0.6,0);
-		// 	        explosionRadius.material.specularColor = new BABYLON.Color3(0,0,0);
-		// 	        explosionRadius.material.alpha = 0.8;
-			        
-		// 	        // Chaque frame, on baisse l'opacité et on efface l'objet quand l'alpha est arrivé à 0
-		// 	        explosionRadius.registerAfterRender(function(){
-		// 	            explosionRadius.material.alpha -= 0.02;
-		// 	            if(explosionRadius.material.alpha<=0){
-		// 	                explosionRadius.dispose();
-		// 	            }
-		// 	        });
-		// 	    }
-		// 	    newRocket.dispose();
-		// 	}
-		// });
+		    // On élargis le trait pour le rendre visible
+		    line.enableEdgesRendering();
+		    line.isPickable = false;
+		    line.edgesWidth = 40.0;
+		    line.edgesColor = new BABYLON.Color4(colorLine.r, colorLine.g, colorLine.b, 1);
+		    if(directionPoint.pickedMesh.isPlayer){
+		        // On inflige des dégats au joueur
+		    }
+		    this.Player.game._lasers.push(line);
+		}
 	},
 };
