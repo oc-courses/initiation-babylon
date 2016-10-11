@@ -50,20 +50,23 @@ Game = function(canvasId) {
         // Checker le mouvement du joueur en lui envoyant le ratio de déplacement
         _player._checkMove((_this.fps)/60);
 
-        // Si launchBullets est a true, on tire
-        if(_player.camera.weapons.launchBullets === true){
-            _player.camera.weapons.launchFire();
-        }
-
         // On apelle no deux fonctions de calcul pour les roquettes
         _this.renderRockets();
         _this.renderExplosionRadius();
 
         // On calcule la diminution de la taille du laser
         _this.renderLaser();
+
+        // On calcule les animations des armes
+        _this.renderWeapons();
         
         // On rend la scène
         _this.scene.render();
+
+        // Si launchBullets est a true, on tire
+        if(_player.camera.weapons.launchBullets === true){
+            _player.camera.weapons.launchFire();
+        }
     });
 
     // Ajuste la vue 3D si la fenetre est agrandi ou diminué
@@ -150,6 +153,22 @@ Game.prototype = {
                 if(this._lasers[i].edgesWidth<=0){
                     this._lasers[i].dispose();
                     this._lasers.splice(i, 1);
+                }
+            }
+        }
+    },
+    renderWeapons : function(){
+        if(this._PlayerData && this._PlayerData.camera.weapons.inventory){
+            // On regarde toute les armes dans inventory
+            var inventoryWeapons = this._PlayerData.camera.weapons.inventory;
+            
+            for (var i = 0; i < inventoryWeapons.length; i++) {
+                // Si l'arme est active et n'est pas à la position haute (topPositionY)
+                if(inventoryWeapons[i].isActive && inventoryWeapons[i].position.y < this._PlayerData.camera.weapons.topPositionY){
+                    inventoryWeapons[i].position.y += 0.1;
+                }else if(!inventoryWeapons[i].isActive && inventoryWeapons[i].position.y != this._PlayerData.camera.weapons.bottomPosition.y){
+                    // Sinon, si l'arme est inactive et oas encore à la position basse
+                    inventoryWeapons[i].position.y -= 0.1;
                 }
             }
         }

@@ -84,6 +84,25 @@ Player = function(game, canvas) {
         }
     }, false);
 
+    // Changement des armes
+    this.previousWheeling = 0;
+
+    canvas.addEventListener("mousewheel", function(evt) {
+        // Si la différence entre les deux tour de souris sont minime
+        if(Math.round(evt.timeStamp - _this.previousWheeling)>10){
+            if(evt.deltaY<0){
+                // Si on scroll vers le haut, on va chercher l'arme suivante
+                _this.camera.weapons.nextWeapon(1);
+            }else{
+                // Si on scroll vers le haut, on va chercher l'arme précédente
+                _this.camera.weapons.nextWeapon(-1);
+            }
+            //On affecte a previousWheeling la valeur actuelle
+            _this.previousWheeling = evt.timeStamp;
+        }
+        
+    }, false);
+
     
     // Initialisation de la caméra
     this._initCamera(this.game.scene, canvas); 
@@ -257,8 +276,12 @@ Player.prototype = {
         // Suppression de la camera
         this.camera.dispose();   
 
-        // Suppression de l'arme
-        this.camera.weapons.rocketLauncher.dispose();
+        // Suppression des armes
+        var inventoryWeapons = this.camera.weapons.inventory;
+        for (var i = 0; i < inventoryWeapons.length; i++) {
+            inventoryWeapons[i].dispose();
+        }
+        inventoryWeapons = [];
 
         // On signale a Weapon que le joueur est mort
         this.isAlive=false;

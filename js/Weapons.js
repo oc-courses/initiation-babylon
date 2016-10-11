@@ -18,6 +18,12 @@ Weapons = function(Player) {
 	var ezekiel = this.newWeapon('Ezekiel')
 	this.inventory[0] = ezekiel;
 
+	var crook = this.newWeapon('Crook')
+	this.inventory[1] = crook;
+
+	var arma = this.newWeapon('Armageddon')
+	this.inventory[2] = arma;
+
 	// Notre arme actuelle est Ezekiel, qui se trouve en deuxième position
 	// dans le tableau des armes dans Armory
 	this.actualWeapon = this.inventory.length -1;
@@ -104,14 +110,12 @@ Weapons.prototype = {
 			var renderHeight = this.Player.game.engine.getRenderHeight(true);
 
 			// Cast un rayon au centre de l'écran
-			var direction = this.Player.game.scene.pick(renderWidth/2,renderHeight/2);
 			var direction = this.Player.game.scene.pick(renderWidth/2,renderHeight/2,function (item) {
 			    if (item.name == "playerBox" || item.name == "weapon" || item.id == "hitBoxPlayer")
 			        return false;
 			    else
 			        return true;
 			});
-			console.log(direction)
 			// Si l'arme est une arme de distance
 			if(this.Armory.weapons[idWeapon].type === 'ranged'){
 		        if(this.Armory.weapons[idWeapon].setup.ammos.type === 'rocket'){
@@ -126,10 +130,11 @@ Weapons.prototype = {
 		            this.shootBullet(direction)
 		        }else{
 		           // Nous devons tirer au laser
-		           this.createLaser()
+		           this.createLaser(direction)
 		        }
 			}else{
-			    // Si ce n'est pas une arme a distance, il faut attaquer au corp a corp
+			    // Appel de l'attaque au corps a corps
+    			this.hitHand(direction)
 			}
 			this.canFire = false; 
 	    } else {
@@ -169,6 +174,8 @@ Weapons.prototype = {
 	    this.Player.game._rockets.push(newRocket);
 	},
 	shootBullet : function(meshFound) {
+		var setupWeapon = this.Armory.weapons[this.actualWeapon].setup;
+
 	    if(meshFound.hit && meshFound.pickedMesh.isPlayer){
 	        // On a touché un joueur
 	    }else{
@@ -176,27 +183,18 @@ Weapons.prototype = {
 	        console.log('Not Hit Bullet')
 	    }
 	},
-	createLaser : function() {
+	createLaser : function(meshFound) {
 	    var setupLaser = this.Armory.weapons[this.actualWeapon].setup.ammos;
-
-		var renderWidth = this.Player.game.engine.getRenderWidth(true);
-		var renderHeight = this.Player.game.engine.getRenderHeight(true);
 
 		var positionValue = this.inventory[this.actualWeapon].absolutePosition.clone();
 
-		var directionPoint = this.Player.game.scene.pick(renderWidth/2,renderHeight/2,function (item) {
-		    if (item.name == "playerBox" || item.name == "weapon" || item.id == "hitBoxPlayer")
-		        return false;
-		    else
-		        return true;
-		});
-		if(directionPoint.hit){
+		if(meshFound.hit){
 
 		    var laserPosition = positionValue;
 		    // On crée une ligne tracé entre le pickedPoint et le canon de l'arme
 		    let line = BABYLON.Mesh.CreateLines("lines", [
 		                laserPosition,
-		                directionPoint.pickedPoint
+		                meshFound.pickedPoint
 		    ], this.Player.game.scene);
 		    // On donne une couleur aléatoire
 		    var colorLine = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
@@ -207,10 +205,79 @@ Weapons.prototype = {
 		    line.isPickable = false;
 		    line.edgesWidth = 40.0;
 		    line.edgesColor = new BABYLON.Color4(colorLine.r, colorLine.g, colorLine.b, 1);
-		    if(directionPoint.pickedMesh.isPlayer){
+		    if(meshFound.pickedMesh.isPlayer){
 		        // On inflige des dégats au joueur
 		    }
 		    this.Player.game._lasers.push(line);
 		}
 	},
+	hitHand : function(meshFound) {
+        var setupWeapon = this.Armory.weapons[this.actualWeapon].setup;
+
+        if(meshFound.hit && meshFound.distance < setupWeapon.range*5 && meshFound.pickedMesh.isPlayer){
+            // On a touché un joueur
+        }else{
+            // L'arme frappe dans le vide
+            console.log('Not Hit CaC')
+        }
+    },
+	nextWeapon : function(way) {
+	    // On définis armoryWeapons pour accéder plus facilement à Armory
+	    var armoryWeapons = this.Armory.weapons;
+	    
+	    // On dit qur l'arme suivante est logiquement l'arme plus le sens donné
+	    var nextWeapon = this.inventory[this.actualWeapon].typeWeapon + way;
+	    
+	    //on définis actuellement l'arme possible utilisable a 0 pour l'instant
+	    var nextPossibleWeapon = null;
+
+	    // Si le sens est positif
+		if(way>0){
+		    // La boucle commence depuis nextWeapon
+		    for (var i = nextWeapon; i < nextWeapon + this.Armory.weapons.length; i++) {
+		        // L'arme qu'on va tester sera un modulo de i et de la longueur de Weapon
+		        var numberWeapon = i % this.Armory.weapons.length;
+		        // On compare ce nombre au armes qu'on a dans l'inventaire
+		        for (var y = 0; y < this.inventory.length; y++) {
+		            if(this.inventory[y].typeWeapon === numberWeapon){
+		                // Si on trouve quelque chose, c'est donnc une arme qui vient arès la notre
+		                nextPossibleWeapon = y;
+		                break;
+		            }
+		        }
+		        // Si on a trouvé une arme correspondante, on a plus besoin de la boucle for
+		        if(nextPossibleWeapon != null){
+		            break;
+		        }   
+		    }
+		}else{
+		    for (var i = nextWeapon; ; i--) {
+		        if(i<0){
+		            i = this.Armory.weapons.length;
+		        }
+		        var numberWeapon = i;
+		        for (var y = 0; y < this.inventory.length; y++) {
+		            if(this.inventory[y].typeWeapon === numberWeapon){
+		                nextPossibleWeapon = y;
+		                break;
+		            }
+		        }
+		        if(nextPossibleWeapon != null){
+		            break;
+		        }   
+		    }
+		}
+		if(this.actualWeapon != nextPossibleWeapon){
+		    // On dit a notre arme actuelle qu'elle n'est plus active
+		    this.inventory[this.actualWeapon].isActive = false;
+		    // On change l'arme actuelle avec celle qu'on a trouvé
+		    this.actualWeapon = nextPossibleWeapon;
+		    // On dit a notre arme choisi qu'elle est l'arme active
+		    this.inventory[this.actualWeapon].isActive = true;
+
+		    // On actualise la cadence de l'arme l'arme
+		    this.fireRate = this.Armory.weapons[this.inventory[this.actualWeapon].typeWeapon].setup.cadency;
+		    this._deltaFireRate = this.fireRate;
+		}
+	}
 };
