@@ -43,17 +43,17 @@ Game = function(canvasId) {
         // Checker le mouvement du joueur en lui envoyant le ratio de déplacement
         _player._checkMove((_this.fps)/60);
 
-        // Si launchBullets est a true, on tire
-        if(_player.camera.weapons.launchBullets === true){
-            _player.camera.weapons.launchFire();
-        }
-
         // On apelle no deux fonctions de calcul pour les roquettes
         _this.renderRockets();
         _this.renderExplosionRadius();
         
         // On rend la scène
         _this.scene.render();
+
+        // Si launchBullets est a true, on tire
+        if(_player.camera.weapons.launchBullets === true){
+            _player.camera.weapons.launchFire();
+        }
     });
 
     // Ajuste la vue 3D si la fenetre est agrandi ou diminué
@@ -77,8 +77,6 @@ Game.prototype = {
     },
     renderRockets : function() {
         for (var i = 0; i < this._rockets.length; i++) {
-            // On bouge la roquette vers l'avant
-            this._rockets[i].translate(new BABYLON.Vector3(0,0,1),1,0);
 
             // On crée un rayon qui part de la base de la roquette vers l'avant
             var rayRocket = new BABYLON.Ray(this._rockets[i].position,this._rockets[i].direction);
