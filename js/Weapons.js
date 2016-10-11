@@ -95,11 +95,12 @@ Weapons.prototype = {
 	        Math.cos(rotationValue.y) * Math.cos(rotationValue.x)
 	    )
 	    newRocket.position = new BABYLON.Vector3(
-	        positionValue.x + (newRocket.direction.x * 3) , 
-	        positionValue.y + (newRocket.direction.y * 3) ,
-	        positionValue.z + (newRocket.direction.z * 3));
+	        positionValue.x + (newRocket.direction.x * 1) , 
+	        positionValue.y + (newRocket.direction.y * 1) ,
+	        positionValue.z + (newRocket.direction.z * 1));
 	    newRocket.rotation = new BABYLON.Vector3(rotationValue.x,rotationValue.y,rotationValue.z);
 	    newRocket.scaling = new BABYLON.Vector3(0.5,0.5,1);
+	    newRocket.isPickable = false;
 
 	    newRocket.material = new BABYLON.StandardMaterial("textureWeapon", this.Player.game.scene);
 	    newRocket.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
