@@ -15,14 +15,11 @@ Weapons = function(Player) {
 	this.inventory = [];
 
 	// Créons notre lance roquette
-	var ezekiel = this.newWeapon('Ezekiel')
-	this.inventory[0] = ezekiel;
-
 	var crook = this.newWeapon('Crook')
-	this.inventory[1] = crook;
+	this.inventory[0] = crook;
 
-	var arma = this.newWeapon('Armageddon')
-	this.inventory[2] = arma;
+	var ezekiel = this.newWeapon('Ezekiel')
+	this.inventory[1] = ezekiel;
 
 	// Notre arme actuelle est Ezekiel, qui se trouve en deuxième position
 	// dans le tableau des armes dans Armory
@@ -111,7 +108,7 @@ Weapons.prototype = {
 
 			// Cast un rayon au centre de l'écran
 			var direction = this.Player.game.scene.pick(renderWidth/2,renderHeight/2,function (item) {
-			    if (item.name == "playerBox" || item.name == "weapon" || item.id == "hitBoxPlayer")
+			    if (item.name == "weapon" || item.id == "headMainPlayer" || item.id == "hitBoxPlayer")
 			        return false;
 			    else
 			        return true;
@@ -120,9 +117,9 @@ Weapons.prototype = {
 			if(this.Armory.weapons[idWeapon].type === 'ranged'){
 		        if(this.Armory.weapons[idWeapon].setup.ammos.type === 'rocket'){
 		            // Nous devons tirer une roquette
-		            direction = direction.pickedPoint.subtractInPlace(this.Player.camera.playerBox.position);
+		            direction = direction.pickedPoint.subtractInPlace(this.inventory[this.actualWeapon].absolutePosition.clone());
 		            direction = direction.normalize();
-
+		            // console.log(direction)
 		            // On crée la roquette
 		            this.createRocket(this.Player.camera.playerBox,direction);
 		        }else if(this.Armory.weapons[idWeapon].setup.ammos.type === 'bullet'){
@@ -142,7 +139,8 @@ Weapons.prototype = {
 	    }
 	},
 	createRocket : function(playerPosition, direction) {
-	    var positionValue = playerPosition.position;
+	    var positionValue = this.inventory[this.actualWeapon].absolutePosition.clone();
+	    // console.log(this.inventory[this.actualWeapon].absolutePosition.clone())
 	    var rotationValue = playerPosition.rotation; 
 	    var Player = this.Player;
 	    var newRocket = BABYLON.Mesh.CreateBox("rocket", 1, Player.game.scene);
@@ -156,9 +154,9 @@ Weapons.prototype = {
 	    newRocket.direction = direction;
 
 	    newRocket.position = new BABYLON.Vector3(
-	        positionValue.x + (newRocket.direction.x * 3) , 
-	        positionValue.y + (newRocket.direction.y * 3) ,
-	        positionValue.z + (newRocket.direction.z * 3));
+	        positionValue.x + (newRocket.direction.x * 1) , 
+	        positionValue.y + (newRocket.direction.y * 1) ,
+	        positionValue.z + (newRocket.direction.z * 1));
 	    newRocket.rotation = new BABYLON.Vector3(rotationValue.x,rotationValue.y,rotationValue.z);
 	    newRocket.scaling = new BABYLON.Vector3(0.5,0.5,1);
 
@@ -168,8 +166,7 @@ Weapons.prototype = {
 	    newRocket.material.diffuseColor = this.Armory.weapons[idWeapon].setup.colorMesh;
 		newRocket.paramsRocket = this.Armory.weapons[idWeapon].setup;
 
-	    // On donne accès à Player dans registerBeforeRender
-	    var Player = this.Player;
+		newRocket.isPickable = false;
 
 	    this.Player.game._rockets.push(newRocket);
 	},

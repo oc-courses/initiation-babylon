@@ -125,10 +125,11 @@ Player.prototype = {
         // On dit que le spawnPoint est celui choisi selon le random plus haut
         this.spawnPoint = this.game.allSpawnPoints[randomPoint];
 
-        var playerBox = BABYLON.Mesh.CreateBox("hitBoxPlayer", 3, scene);
+        var playerBox = BABYLON.Mesh.CreateBox("headMainPlayer", 3, scene);
         // On donne le sawnPoint avec clone() pour que celui ci ne soit pas affécté par le déplacement du joueur
         playerBox.position = this.spawnPoint.clone();
         playerBox.ellipsoid = new BABYLON.Vector3(2, 2, 2);
+        playerBox.isPickable = false;
 
         // On crée la caméra
         this.camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, 0), scene);
