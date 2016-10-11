@@ -81,7 +81,7 @@ Weapons.prototype = {
 	    }
 	},
 	createRocket : function(playerPosition) {
-	    var positionValue = playerPosition.position;
+	    var positionValue = this.rocketLauncher.absolutePosition.clone();
 	    var rotationValue = playerPosition.rotation; 
 	    var Player = this.Player;
 	    var newRocket = BABYLON.Mesh.CreateBox("rocket", 1, Player.game.scene);
@@ -92,14 +92,16 @@ Weapons.prototype = {
 	        Math.cos(rotationValue.y) * Math.cos(rotationValue.x)
 	    )
 	    newRocket.position = new BABYLON.Vector3(
-	        positionValue.x + (newRocket.direction.x * 3) , 
-	        positionValue.y + (newRocket.direction.y * 3) ,
-	        positionValue.z + (newRocket.direction.z * 3));
+	        positionValue.x + (newRocket.direction.x * 1) , 
+	        positionValue.y + (newRocket.direction.y * 1) ,
+	        positionValue.z + (newRocket.direction.z * 1));
 	    newRocket.rotation = new BABYLON.Vector3(rotationValue.x,rotationValue.y,rotationValue.z);
 	    newRocket.scaling = new BABYLON.Vector3(0.5,0.5,1);
 
 	    newRocket.material = new BABYLON.StandardMaterial("textureWeapon", this.Player.game.scene);
 	    newRocket.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+
+	    newRocket.isPickable = false;
 
 	    // On donne accès à Player dans registerBeforeRender
 	    var Player = this.Player;

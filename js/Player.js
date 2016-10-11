@@ -127,8 +127,6 @@ Player.prototype = {
         hitBoxPlayer.scaling.y = 2;
         hitBoxPlayer.isPickable = true;
         hitBoxPlayer.isMain = true;
-
-
     },
     handleUserMouseDown : function() {
         console.log('test')
