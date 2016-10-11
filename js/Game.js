@@ -10,10 +10,21 @@ Game = function(canvasId) {
     this.engine = engine;
     var _this = this;
     _this.actualTime = Date.now();
+    
+    this.allSpawnPoints = [
+        new BABYLON.Vector3(-20, 5, 0),
+        new BABYLON.Vector3(0, 5, 0),
+        new BABYLON.Vector3(20, 5, 0),
+        new BABYLON.Vector3(-40, 5, 0)
+    ];
+
     // On initie la scène avec une fonction associé à l'objet Game
     this.scene = this._initScene(engine);
     
     var _player = new Player(_this, canvas);
+
+    // Accès à Player depuis Game
+    this._PlayerData = _player;
 
     var _arena = new Arena(_this);
 
@@ -90,6 +101,15 @@ Game.prototype = {
                     explosionRadius.material.diffuseColor = new BABYLON.Color3(1,0.6,0);
                     explosionRadius.material.specularColor = new BABYLON.Color3(0,0,0);
                     explosionRadius.material.alpha = 0.8;
+
+                    // Calcule la matrice de l'objet pour les collisions
+                    explosionRadius.computeWorldMatrix(true);
+
+                    // On fais un tour de bouche pour chaque joueur de la scène
+                    if (this._PlayerData.isAlive && this._PlayerData.camera.playerBox && explosionRadius.intersectsMesh(this._PlayerData.camera.playerBox)) {
+                        // Envoie a la fonction d'affectation des dégats
+                        this._PlayerData.getDamage(30)
+                    }
                     
                     this._explosionRadius.push(explosionRadius);
                 }

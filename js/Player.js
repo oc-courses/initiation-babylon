@@ -97,8 +97,18 @@ Player = function(game, canvas) {
 
 Player.prototype = {
     _initCamera : function(scene, canvas) {
+        // Math.random nous donne un nombre entre 0 et 1
+        let randomPoint = Math.random();
+
+        // randomPoint fais un arrondis de ce chiffre et du nombre de spawnPoints
+        randomPoint = Math.round(randomPoint * (this.game.allSpawnPoints.length - 1));
+
+        // On dit que le spawnPoint est celui choisi selon le random plus haut
+        this.spawnPoint = this.game.allSpawnPoints[randomPoint];
+
         var playerBox = BABYLON.Mesh.CreateBox("box1", 3, scene);
-        playerBox.position = new BABYLON.Vector3(-20, 5, 0);
+        // On donne le sawnPoint avec clone() pour que celui ci ne soit pas affécté par le déplacement du joueur
+        playerBox.position = this.spawnPoint.clone();
         playerBox.ellipsoid = new BABYLON.Vector3(2, 2, 2);
 
         // On crée la caméra
@@ -113,14 +123,22 @@ Player.prototype = {
         // Si le joueur est en vie ou non
         this.isAlive = true;
 
+        // La santé du joueur
+        this.camera.health = 100;
         // Pour savoir que c'est le joueur principal
         this.camera.isMain = true;
+        // L'armure du joueur
+        this.camera.armor = 0;
 
         // On crée les armes !
         this.camera.weapons = new Weapons(this);
 
         // On ajoute l'axe de mouvement
         this.camera.axisMovement = [false,false,false,false];
+
+        // On réinitialise la position de la caméra
+        this.camera.setTarget(BABYLON.Vector3.Zero());
+        this.game.scene.activeCamera = this.camera;
 
         var hitBoxPlayer = BABYLON.Mesh.CreateBox("hitBoxPlayer", 3, scene);
         hitBoxPlayer.parent = this.camera.playerBox;
@@ -131,7 +149,6 @@ Player.prototype = {
 
     },
     handleUserMouseDown : function() {
-        console.log('test')
         if(this.isAlive === true){
             this.camera.weapons.fire();
         }
@@ -204,5 +221,52 @@ Player.prototype = {
             this.camera.playerBox.moveWithCollisions(right);
         }
         this.camera.playerBox.moveWithCollisions(new BABYLON.Vector3(0,(-1.5) * relativeSpeed ,0));
+    },
+    getDamage : function(damage){
+        var damageTaken = damage;
+        // Tampon des dégats par l'armure
+        if(this.camera.armor > Math.round(damageTaken/2)){
+            this.camera.armor -= Math.round(damageTaken/2);
+            damageTaken = Math.round(damageTaken/2);
+        }else{
+            damageTaken = damageTaken - this.camera.armor;
+            this.camera.armor = 0;
+        }
+        // Si le joueur i a encore de la vie
+        if(this.camera.health>damageTaken){
+            this.camera.health-=damageTaken;
+        }else{
+            // Sinon, il est mort
+            this.playerDead();
+        }
+    },
+    playerDead : function(i) {
+        this.deadCamera = new BABYLON.ArcRotateCamera("ArcRotateCamera", 
+        1, 0.8, 10, new BABYLON.Vector3(
+            this.camera.playerBox.position.x, 
+            this.camera.playerBox.position.y, 
+            this.camera.playerBox.position.z), 
+        this.game.scene);
+        
+        this.game.scene.activeCamera = this.deadCamera;
+        this.deadCamera.attachControl(this.game.scene.getEngine().getRenderingCanvas());
+
+        // Suppression de la playerBox
+        this.camera.playerBox.dispose();
+
+        // Suppression de la camera
+        this.camera.dispose();   
+
+        // Suppression de l'arme
+        this.camera.weapons.rocketLauncher.dispose();
+
+        // On signale a Weapon que le joueur est mort
+        this.isAlive=false;
+
+        var newPlayer = this;
+        var canvas = this.game.scene.getEngine().getRenderingCanvas();
+        setTimeout(function(){ 
+            newPlayer._initCamera(newPlayer.game.scene, canvas);
+        }, 4000);
     },
 };
