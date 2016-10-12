@@ -28,7 +28,7 @@ socket.on('newPlayer',function(dataNewPlayer){
             }
         }
     }
-    // game.displayScore(score);
+    game.displayScore(score);
 
     // Vérifie les joueurs qui se connectent
     checkIfNewGhost(room);
@@ -176,7 +176,7 @@ socket.on ('killGhostPlayer', function (arrayData) {
     if(idArray[1] == personalRoomId){
         game._PlayerData.newDeadEnnemy(idArray[2]);
     }
-    // game.displayScore(roomScore);
+    game.displayScore(roomScore);
 });
 socket.on ('ressurectGhostPlayer', function (idPlayer) {
     if(idPlayer != personalRoomId){
