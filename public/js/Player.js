@@ -142,6 +142,30 @@ Player = function(game, canvas) {
     // Affichage de la vie et de l'armure
     this.textHealth.innerText = this.camera.health;
     this.textArmor.innerText = this.camera.armor;
+
+    // Si je loueur peut sauter ou non
+    _this.camera.canJump = true;
+
+    // La hauteur de saut
+    _this.jumpHeight = 10;
+
+    // La hauteur du personnage
+    _this.originHeight = _this.camera.playerBox.position.clone();
+    window.addEventListener("keypress", function(evt) {
+        console.log(_this.camera.canJump)
+        if(evt.keyCode === 32){
+            if(_this.camera.canJump===true){
+
+                _this.camera.jumpNeed = _this.camera.playerBox.position.y + _this.jumpHeight;
+
+                _this.camera.canJump=false;
+                var data={
+                    jumpNeed : _this.camera.jumpNeed
+                };
+                _this.sendNewData(data)
+            }
+        }
+    }, false);
 };
 
 Player.prototype = {
@@ -284,7 +308,48 @@ Player.prototype = {
             );
             playerSelected.playerBox.moveWithCollisions(right);
         }
-        playerSelected.playerBox.moveWithCollisions(new BABYLON.Vector3(0,(-1.5) * relativeSpeed ,0));
+        if(playerSelected.jumpNeed){
+            // Lerp 
+            console.log('test')
+            percentMove = playerSelected.jumpNeed - playerSelected.playerBox.position.y;
+            // Axe de mouvement
+            up = new BABYLON.Vector3(0,percentMove/4 *  relativeSpeed,0);
+            playerSelected.playerBox.moveWithCollisions(up);
+            // On vérifie si le joueur a atteind la hauteur désiré
+            if(playerSelected.playerBox.position.y + 1 > playerSelected.jumpNeed){
+                // Si c'est le cas, on prépare airTime
+                playerSelected.airTime = 0;
+                playerSelected.jumpNeed = false;
+            }
+        }else{
+            // On trace un rayon depuis le joueur
+            var rayPlayer = new BABYLON.Ray(playerSelected.playerBox.position,new BABYLON.Vector3(0,-1,0));
+
+            // On regarde quel est le premier objet qu'on touche
+            // On exclue tout les mesh qui appartiennent au joueur
+            var distPlayer = this.game.scene.pickWithRay(rayPlayer, function (item) {
+                if (item.name == "hitBoxPlayer" || item.id == "headMainPlayer" || item.id == "bodyGhost"  ||  item.isPlayer)
+                    return false;
+                else
+                    return true;
+            });
+            // isMain permet de vérifier si c'est le joueur
+            if(playerSelected.isMain){
+                var targetHeight = this.originHeight.y;
+            }else{
+                // si c'est un ghost, on fixe la hauteur à 3 
+                var targetHeight = 3;
+            }
+            if(distPlayer.distance <= targetHeight){
+                if(playerSelected.isMain && !playerSelected.canJump){
+                    playerSelected.canJump = true;
+                }
+                playerSelected.airTime = 0;
+            }else{
+                playerSelected.airTime++;
+                playerSelected.playerBox.moveWithCollisions(new BABYLON.Vector3(0,(-playerSelected.airTime/30) * relativeSpeed ,0));
+            }
+        }
     },
     getDamage : function(damage, whoDamage){
         var damageTaken = damage;
@@ -381,6 +446,9 @@ Player.prototype = {
                 }
                 if(data.rotation){
                     ghostPlayers[i].head.rotation.y = data.rotation.y;
+                }
+                if(data.jumpNeed){
+                    ghostPlayers[i].jumpNeed = data.jumpNeed;
                 }
                 if(data.axisMovement){
                     ghostPlayers[i].axisMovement = data.axisMovement;

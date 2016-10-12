@@ -174,7 +174,7 @@ socket.on ('killGhostPlayer', function (arrayData) {
         deleteGameGhost(game,idArray[0]);
     }
     if(idArray[1] == personalRoomId){
-        game._PlayerData.newDeadEnnemy(idArray[2]);
+        // game._PlayerData.newDeadEnnemy(idArray[2]);
     }
     game.displayScore(roomScore);
 });
