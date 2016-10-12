@@ -43,12 +43,29 @@ Weapons = function(Player) {
 	// Engine va nous être utile pour la cadence de tir
 	var engine = Player.game.scene.getEngine();
 
+	// Définition du temps passé a chaque rechargement
+	this._animationDelta = 0; 
+
 	Player.game.scene.registerBeforeRender(function() {
 	    if (!_this.canFire) {
+	        // On anime l'arme actuelle
+	        _this.animateMovementWeapon(_this._animationDelta); 
+	        // On augmente animationDelta
+	        _this._animationDelta += engine.getDeltaTime();
 	        _this._deltaFireRate -= engine.getDeltaTime();
-	        if (_this._deltaFireRate <= 0  && _this.Player.isAlive) {
+
+	        if (_this._deltaFireRate <= 0 && _this.Player.isAlive) {
+	            // Quand on a finis l'animation, on replace l'arme a sa position initiale
+	            _this.inventory[_this.actualWeapon].position = 
+	            _this.inventory[_this.actualWeapon].basePosition.clone();
+	            _this.inventory[_this.actualWeapon].rotation = 
+	            _this.inventory[_this.actualWeapon].baseRotation.clone();
+	            
 	            _this.canFire = true;
 	            _this._deltaFireRate = _this.fireRate;
+	            
+	            // Quand on peut tirer, on repasse animationDelta à 0
+	            _this._animationDelta = 0;
 	        }
 	    }
 	});
@@ -83,6 +100,10 @@ Weapons.prototype = {
 	            newWeapon.typeWeapon = i;
 
 	            newWeapon.isActive = false;
+
+	            // Positions de base
+	            newWeapon.basePosition = newWeapon.position;
+				newWeapon.baseRotation = newWeapon.rotation;
 	            break;
 	        }else if(i === this.Armory.weapons.length -1){
 	            console.log('UNKNOWN WEAPON');
@@ -277,16 +298,74 @@ Weapons.prototype = {
 		    }
 		}
 		if(this.actualWeapon != nextPossibleWeapon){
-		    // On dit a notre arme actuelle qu'elle n'est plus active
+		    // On dis à l'arme de se repositionner à son emplacement initial
+		    this.inventory[this.actualWeapon].position = 
+		    this.inventory[this.actualWeapon].basePosition.clone();
+		    
+		    this.inventory[this.actualWeapon].rotation = 
+		    this.inventory[this.actualWeapon].baseRotation.clone();
+		    
+		    // On reset _animationDelta
+		    this._animationDelta = 0;
+
 		    this.inventory[this.actualWeapon].isActive = false;
-		    // On change l'arme actuelle avec celle qu'on a trouvé
+		    this.inventory[this.actualWeapon]
 		    this.actualWeapon = nextPossibleWeapon;
-		    // On dit a notre arme choisi qu'elle est l'arme active
 		    this.inventory[this.actualWeapon].isActive = true;
 
-		    // On actualise la cadence de l'arme l'arme
 		    this.fireRate = this.Armory.weapons[this.inventory[this.actualWeapon].typeWeapon].setup.cadency;
 		    this._deltaFireRate = this.fireRate;
 		}
-	}
+	},
+	animateMovementWeapon : function(step){
+	    if(!this.Player.isAlive){
+	        return;
+	    }
+	    let typeWeapon = this.inventory[this.actualWeapon].typeWeapon;
+	    
+	    // On divise step par la valeur de timaAnimation de l'arme
+	    // On multiplie cette valeur par 180 
+	    let result = (step / this.Armory.weapons[typeWeapon].timeAnimation) * 180;
+
+	    // Si la valeur dépasse 180, c'est que step est supérieur à timeAnimation
+	    // Dans ce cas, on fais en sorte que result ne dépasse jamais 180
+	    if(result>180){
+	        result = 180;
+	    }
+	    // La valeur 100 sert à arrondir
+	    let degSin = Math.round(Math.sin(degToRad(result))*100)/100;
+	    
+	    
+
+	    // On détermine les paramètres de mouvement pour chaque type d'arme
+	    switch(typeWeapon){
+	        case 0:
+	            var positionNeeded = new BABYLON.Vector3(0,-0.5,0);
+	            var rotationNeeded = new BABYLON.Vector3(-0.5,0,0);
+	            break;
+	        case 1:
+	            var positionNeeded = new BABYLON.Vector3(0.05,0.05,0);
+	            var rotationNeeded = new BABYLON.Vector3(0.1,0.1,0);
+	            break;
+	        case 2:
+	            var positionNeeded = new BABYLON.Vector3(0,0.4,0);
+	            var rotationNeeded = new BABYLON.Vector3(1.3,0,0);
+	            break;
+	        case 3:
+	            var positionNeeded = new BABYLON.Vector3(0,0,-1);
+	            var rotationNeeded = new BABYLON.Vector3(0,0,0);
+	            break;
+	    }
+	    // On récupère la position et rotation de base
+	    var baseRotation = this.inventory[this.actualWeapon].baseRotation.clone();
+	    var basePosition = this.inventory[this.actualWeapon].basePosition.clone();
+
+	    // On affecte les valeurs qui nous intéresse par étape
+	    this.inventory[this.actualWeapon].rotation = baseRotation.clone() ;
+	    this.inventory[this.actualWeapon].rotation.x -= (rotationNeeded.x*degSin);
+
+	    this.inventory[this.actualWeapon].position = basePosition.clone() ;
+	    this.inventory[this.actualWeapon].position.y += (positionNeeded.y*degSin);
+	    this.inventory[this.actualWeapon].position.z += (positionNeeded.z*degSin);
+	},
 };

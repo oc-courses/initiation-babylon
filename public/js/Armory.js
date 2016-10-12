@@ -7,9 +7,10 @@ Armory = function(game, player) {
                 'meshName': 'Crook'
             },
             'type':'closeCombat',
+            'timeAnimation' : 400,
             'setup':{
                 // Distance de frappe de l'arme de CaC
-                'range': 2,
+                'range': 4,
                 'damage' : 20,
                 'cadency' : 500,
                 'colorMesh' : new BABYLON.Color3((59/255), (195/255), (203/255))
@@ -22,11 +23,13 @@ Armory = function(game, player) {
                 'meshName': 'Timmy'
             },
             'type':'ranged',
+            'timeAnimation' : 50,
             'setup':{
-                'damage' : 2,
+                'damage' : 3,
                 'cadency' : 50,
                 'ammos' : {
                     'type' : 'bullet',
+                    'meshAmmosName' : 'Balles',
                     'baseAmmos' : 200,
                     'maximum' : 400,
                     'refuel' : 50
@@ -36,6 +39,7 @@ Armory = function(game, player) {
         },
         {
             'name':'Ezekiel',
+            'timeAnimation' : 400,
             'model' : {
                 // 'meshUrl': '',
                 'meshName': 'Ezekiel'
@@ -50,13 +54,13 @@ Armory = function(game, player) {
                     'refuel' : 10,
                     'maximum' : 40,
                     // 'meshAmmosUrl' : '',
-                    'meshAmmosName' : 'Rockets',
+                    'meshAmmosName' : 'Roquettes',
                     // Rapidité de déplacement de la roquette
                     'rocketSpeed' : 2,
                     // Taille de la roquette
                     'rocketSize' : 1,
                     // Rayon de l'explosion
-                    'explosionRadius' : 40
+                    'explosionRadius' : 60
                 },
                 // Couleur du mesh par défault
                 'colorMesh' : new BABYLON.Color3((209/255), (7/255), (26/255))
@@ -69,11 +73,13 @@ Armory = function(game, player) {
                 'meshName': 'Armageddon'
             },
             'type':'ranged',
+            'timeAnimation' : 1000,
             'setup':{
-                'damage' : 1000,
+                'damage' : 80,
                 'cadency' : 2000,
                 'ammos' : {
                     'type' : 'laser',
+                    'meshAmmosName' : 'Energie',
                     'spread' : 1,
                     'baseAmmos' : 5,
                     'maximum' : 15,
