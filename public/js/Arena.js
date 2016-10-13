@@ -173,6 +173,9 @@ Arena.prototype = {
 
                 this.game._PlayerData.givePlayerBonus(paramsBonus.type,paramsBonus.value);
 
+                // Pour la boucle bonusBox
+                this.displayNewPicks(paramsBonus.message);
+
                 // Pour bonusBox
                 this.pickableDestroyed(this.bonusBox[i].idServer,'bonus');
 
@@ -218,6 +221,17 @@ Arena.prototype = {
                     Weapons.fireRate = Weapons.Armory.weapons[actualInventoryWeapon.typeWeapon].setup.cadency;
                     Weapons._deltaFireRate = Weapons.fireRate;
 
+                    Weapons.textAmmos.innerText = actualInventoryWeapon.ammos;
+
+                    Weapons.totalTextAmmos.innerText = 
+                    Weapons.Armory.weapons[actualInventoryWeapon.typeWeapon].setup.ammos.maximum;
+
+                    Weapons.typeTextWeapon.innerText = 
+                    Weapons.Armory.weapons[actualInventoryWeapon.typeWeapon].name;
+
+                    // Pour la boucle weaponBox
+                    this.displayNewPicks(paramsWeapon.name);
+
                     // Pour weaponBox
                     this.pickableDestroyed(this.weaponBox[i].idServer, 'weapon');
 
@@ -236,6 +250,9 @@ Arena.prototype = {
                 var Weapons = this.game._PlayerData.camera.weapons;
 
                 Weapons.reloadWeapon(this.ammosBox[i].typeAmmo, paramsAmmos.refuel);
+                
+                // Pour la boucle ammosBox
+                this.displayNewPicks(paramsAmmos.meshAmmosName);
 
                 // Pour ammosBox
                 this.pickableDestroyed(this.ammosBox[i].idServer, 'ammos');
@@ -343,5 +360,27 @@ Arena.prototype = {
     // Partie Server
     pickableDestroyed : function(idServer,type) {
         destroyPropsToServer(idServer,type)
+    },
+    displayNewPicks : function(typeBonus) {
+        // Récupère les propriétés de la fênetre d'annonce
+        var displayAnnouncement = document.getElementById('announcementKill');
+        var textDisplayAnnouncement = document.getElementById('textAnouncement');
+        
+        // Si la fenêtre possède announcementClose (et qu'elle est donc fermé)
+        if(displayAnnouncement.classList.contains("annoucementClose")){
+            displayAnnouncement.classList.remove("annoucementClose");
+        }
+        // On vérifie que la police est à 1 (nous verrons plus tard pourquoi)
+        textDisplayAnnouncement.style.fontSize = '1rem';
+        
+        // On donne a textDisplayAnnouncement la valeur envoyé à displayNewPicks
+        textDisplayAnnouncement.innerText = typeBonus;
+        
+        // Au bout de 4 secondes, si la fenêtre est ouverte, on la fait disparaitre
+        setTimeout(function(){ 
+            if(!displayAnnouncement.classList.contains("annoucementClose")){
+                displayAnnouncement.classList.add("annoucementClose");
+            }
+        }, 4000);
     },
 }

@@ -46,6 +46,25 @@ Weapons = function(Player) {
 	// Engine va nous être utile pour la cadence de tir
 	var engine = Player.game.scene.getEngine();
 
+	// Nombre de munitions affiché
+	this.textAmmos = document.getElementById('numberAmmos');
+
+	// Nombre de munitions maximum affiché
+	this.totalTextAmmos = document.getElementById('totalAmmos');
+
+	// Nom de l'arme affiché
+	this.typeTextWeapon = document.getElementById('typeWeapon');
+
+	// On récupère les paramètres de l'arme actuelle
+	var paramsActualWeapon = this.Armory.weapons[this.inventory[this.actualWeapon].typeWeapon];
+
+	// Si l'arme a des munitions
+	if(paramsActualWeapon.setup.ammos){
+	    this.textAmmos.innerText = this.inventory[this.actualWeapon].ammos;
+	    this.totalTextAmmos.innerText = paramsActualWeapon.setup.ammos.maximum;
+	    this.typeTextWeapon.innerText = paramsActualWeapon.name;
+	}
+
 	// Définition du temps passé a chaque rechargement
 	this._animationDelta = 0; 
 
@@ -175,6 +194,7 @@ Weapons.prototype = {
 			           this.createLaser(direction)
 			        }
 			        this.inventory[this.actualWeapon].ammos--;
+					this.textAmmos.innerText = this.inventory[this.actualWeapon].ammos;
 			    }
 			}else{
 			    // Appel de l'attaque au corps a corps
@@ -349,6 +369,18 @@ Weapons.prototype = {
 
 		    this.fireRate = this.Armory.weapons[this.inventory[this.actualWeapon].typeWeapon].setup.cadency;
 		    this._deltaFireRate = this.fireRate;
+		    var actualTypeWeapon = this.Armory.weapons[this.inventory[this.actualWeapon].typeWeapon];
+		    // Si l'arme a des munitions
+		    if(actualTypeWeapon.setup.ammos){
+		        this.textAmmos.innerText = this.inventory[this.actualWeapon].ammos;
+		        this.totalTextAmmos.innerText = actualTypeWeapon.setup.ammos.maximum;
+		        this.typeTextWeapon.innerText = actualTypeWeapon.name;
+		    }else{
+		        // Sinon, le texte est différent
+		        this.typeTextWeapon.innerText = actualTypeWeapon.name;
+		        this.textAmmos.innerText = "Inf";
+		        this.totalTextAmmos.innerText = "Inf";
+		    }
 		}
 	},
 	animateMovementWeapon : function(step){
@@ -416,6 +448,10 @@ Weapons.prototype = {
 	            }else{
 	                this.inventory[i].ammos += numberAmmos;
 	            }
+	            var actualTypeWeapon = this.Armory.weapons[this.inventory[this.actualWeapon].typeWeapon];
+		        this.textAmmos.innerText = this.inventory[this.actualWeapon].ammos;
+		        this.totalTextAmmos.innerText = actualTypeWeapon.setup.ammos.maximum;
+		        this.typeTextWeapon.innerText = actualTypeWeapon.name;
 	            break;
 	        }
 	    }
