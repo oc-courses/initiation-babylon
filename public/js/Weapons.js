@@ -235,10 +235,9 @@ Weapons.prototype = {
 		    line.edgesWidth = 40.0;
 		    line.edgesColor = new BABYLON.Color4(colorLine.r, colorLine.g, colorLine.b, 1);
 		    if(meshFound.pickedMesh.isPlayer){
-		        // On inflige des dégats au joueur
+		        var damages = this.Armory.weapons[idWeapon].setup.damage;
+    			sendDamages(damages,meshFound.pickedMesh.name)
 		    }
-		    var damages = this.Armory.weapons[idWeapon].setup.damage;
-    		sendDamages(damages,meshFound.pickedMesh.name)
 
     		// On envoie le point de départ et le point d'arrivée
 			sendGhostLaser(laserPosition,directionPoint.pickedPoint);
