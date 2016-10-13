@@ -188,6 +188,7 @@ Player.prototype = {
 
         // On réinitialise la position de la caméra
         this.camera.setTarget(BABYLON.Vector3.Zero());
+        this.camera.canJump = true;
         this.game.scene.activeCamera = this.camera;
 
         var hitBoxPlayer = BABYLON.Mesh.CreateBox("hitBoxPlayer", 3, scene);
