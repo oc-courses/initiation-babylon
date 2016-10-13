@@ -152,7 +152,6 @@ Player = function(game, canvas) {
     // La hauteur du personnage
     _this.originHeight = _this.camera.playerBox.position.clone();
     window.addEventListener("keypress", function(evt) {
-        console.log(_this.camera.canJump)
         if(evt.keyCode === 32){
             if(_this.camera.canJump===true){
 

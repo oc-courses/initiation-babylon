@@ -68,16 +68,12 @@ var checkIfNewGhost = function(room){ // check if there is a new ghost in room
                 }
             }
             if(!ghostAlreadyExist){ // if ghost not exist yet in myRoom
-                console.log("room:", room);
-                console.log("i: ",i)
                 createGhost(room[i],room[i].id);
             }
         }
     }
 }
 var checkIfGhostDisconnect = function(room){ // check if it miss a ghost in room
-    console.log(room)
-    console.log(myRoom)
     for(var i=0;i<myRoom.length;i++){
         var ghostExist = false;
         for(var j=0;j<room.length;j++){
@@ -121,7 +117,6 @@ var sendPostMortem = function(whoKilledMe){ // update all the ghosts with room d
     socket.emit('killPlayer',[personalRoomId,whoKilledMe]);
 }
 var ressurectMe = function(position){ // update all the ghosts with room data
-    // console.log('bring me back to life!')
     var dataToSend = [game._PlayerData.sendActualData(),personalRoomId];
     dataToSend[0].ghostCreationNeeded = true;
     socket.emit('updateData',dataToSend);
@@ -154,7 +149,6 @@ socket.on ('createGhostRocket', function (arrayData) {
 });
 
 socket.on ('createGhostLaser', function (arrayData) {
-    console.log(arrayData)
     if(arrayData[2] != personalRoomId){
         game.createGhostLaser(arrayData);
     }
@@ -162,7 +156,6 @@ socket.on ('createGhostLaser', function (arrayData) {
 
 socket.on ('giveDamage', function (arrayData) {
     if(arrayData[1] == personalRoomId){
-        console.log('receive damage')
         game._PlayerData.getDamage(arrayData[0],arrayData[2]);
     }
     
