@@ -183,10 +183,9 @@ socket.on ('ressurectGhostPlayer', function (idPlayer) {
         deleteGameGhost(game,idPlayer);
     }
 });
-// socket.on ('deleteProps', function (deleteProp) {
-//     game._ArenaData.deletePropFromServer(deleteProp)
-// });
-// socket.on ('recreateProps', function (createdProp) {
-//     game._ArenaData.recreatePropFromServer(createdProp)
-//     // console.log('Props re-created!' + createdProp);
-// });
+socket.on ('deleteProps', function (deleteProp) {
+    game._ArenaData.deletePropFromServer(deleteProp)
+});
+socket.on ('recreateProps', function (createdProp) {
+    game._ArenaData.recreatePropFromServer(createdProp)
+});

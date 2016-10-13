@@ -89,5 +89,25 @@ Armory = function(game, player) {
             }
         }
     ];
+    this.bonuses=[
+        {
+            'name': 'mHealth', 
+            'message' : 'Gros pack de santé',
+            'type':'health',
+            'value': 75
+        },
+        {
+            'name':'lHealth',
+            'message' : 'Petit pack de santé',
+            'type':'health',
+            'value': 20
+        },
+        {
+            'name' : 'lArmor',
+            'message' : 'Petit pack d\'armure',
+            'type':'armor',
+            'value': 20
+        }
+    ];
     return 1
 };

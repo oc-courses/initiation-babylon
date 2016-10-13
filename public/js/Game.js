@@ -3,7 +3,7 @@
 //     new Game('renderCanvas');
 // }, false);
 
-Game = function(canvasId) {
+Game = function(canvasId,playerConfig,props) {
     // Canvas et engine défini ici
     var canvas = document.getElementById(canvasId);
     var engine = new BABYLON.Engine(canvas, true);
@@ -30,7 +30,9 @@ Game = function(canvasId) {
     // Accès à Player depuis Game
     this._PlayerData = _player;
 
-    var _arena = new Arena(_this);
+    // On envoie props à Arena
+    var _arena = new Arena(_this,props);
+    this._ArenaData = _arena;
 
     // Les roquettes généré dans ¨Player.js
     this._rockets = [];
@@ -59,6 +61,9 @@ Game = function(canvasId) {
 
         // On calcule les animations des armes
         _this.renderWeapons();
+
+        // On check les props
+        _this._ArenaData._checkProps();
         
         // On rend la scène
         _this.scene.render();
