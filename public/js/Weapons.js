@@ -174,11 +174,14 @@ Weapons.prototype = {
 		this.Player.game._rockets.push(newRocket);
 	},
 	shootBullet : function(meshFound) {
-		var setupWeapon = this.Armory.weapons[this.actualWeapon].setup;
+		// Permet de connaitre l'id de l'arme dans Armory.js
+		var idWeapon = this.inventory[this.actualWeapon].typeWeapon;
+
+		var setupWeapon = this.Armory.weapons[idWeapon].setup;
 
 	    if(meshFound.hit && meshFound.pickedMesh.isPlayer){
 	        // On a touché un joueur
-	        var damages = this.Armory.weapons[this.actualWeapon].setup.damage;
+	        var damages = this.Armory.weapons[idWeapon].setup.damage;
 	        sendDamages(damages,meshFound.pickedMesh.name)
 	    }else{
 	        // L'arme ne touche pas de joueur
@@ -186,7 +189,10 @@ Weapons.prototype = {
 	    }
 	},
 	createLaser : function(meshFound) {
-	    var setupLaser = this.Armory.weapons[this.actualWeapon].setup.ammos;
+		// Permet de connaitre l'id de l'arme dans Armory.js
+		var idWeapon = this.inventory[this.actualWeapon].typeWeapon;
+
+	    var setupLaser = this.Armory.weapons[idWeapon].setup.ammos;
 
 		var positionValue = this.inventory[this.actualWeapon].absolutePosition.clone();
 
@@ -210,7 +216,7 @@ Weapons.prototype = {
 		    if(meshFound.pickedMesh.isPlayer){
 		        // On inflige des dégats au joueur
 		    }
-		    var damages = this.Armory.weapons[this.actualWeapon].setup.damage;
+		    var damages = this.Armory.weapons[idWeapon].setup.damage;
     		sendDamages(damages,meshFound.pickedMesh.name)
 
     		// On envoie le point de départ et le point d'arrivée
@@ -220,10 +226,13 @@ Weapons.prototype = {
 		}
 	},
 	hitHand : function(meshFound) {
-        var setupWeapon = this.Armory.weapons[this.actualWeapon].setup;
+		// Permet de connaitre l'id de l'arme dans Armory.js
+		var idWeapon = this.inventory[this.actualWeapon].typeWeapon;
+		
+        var setupWeapon = this.Armory.weapons[idWeapon].setup;
         if(meshFound.hit && meshFound.distance < setupWeapon.range*5 && meshFound.pickedMesh.isPlayer){
             // On a touché un joueur
-            var damages = this.Armory.weapons[this.actualWeapon].setup.damage;
+            var damages = this.Armory.weapons[idWeapon].setup.damage;
     		sendDamages(damages,meshFound.pickedMesh.name)
         }else{
             // L'arme frappe dans le vide
