@@ -170,6 +170,7 @@ Arena.prototype = {
             if(BABYLON.Vector3.Distance(
                 this.game._PlayerData.camera.playerBox.position,
                 this.bonusBox[i].position)<6){
+                var paramsBonus = this.Armory.bonuses[this.bonusBox[i].typeBonus];
 
                 this.game._PlayerData.givePlayerBonus(paramsBonus.type,paramsBonus.value);
 
@@ -262,27 +263,6 @@ Arena.prototype = {
             }
             
         }
-    },
-    // Donner un bonus au joueur
-    givePlayerBonus : function(what,howMany) {
-        
-        var typeBonus = what;
-        var amountBonus = howMany;
-        if(typeBonus === 'health'){
-            if(this.camera.health + amountBonus>100){
-                this.camera.health = 100;
-            }else{
-                this.camera.health += amountBonus;
-            }
-        }else if (typeBonus === 'armor'){
-            if(this.camera.armor + amountBonus>100){
-                this.camera.armor = 100;
-            }else{
-                this.camera.armor += amountBonus;
-            }
-        } 
-        this.textHealth.innerText = this.camera.health;
-        this.textArmor.innerText = this.camera.armor;
     },
     deletePropFromServer : function(deletedProp){
         // idServer est l'id de l'arme
