@@ -240,7 +240,7 @@ Weapons.prototype = {
 		    }
 
     		// On envoie le point de départ et le point d'arrivée
-			sendGhostLaser(laserPosition,directionPoint.pickedPoint);
+			sendGhostLaser(laserPosition,meshFound.pickedPoint);
 
 			this.Player.game._lasers.push(line);
 		}
