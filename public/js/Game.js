@@ -3,7 +3,7 @@
 //     new Game('renderCanvas');
 // }, false);
 
-Game = function(canvasId) {
+Game = function(canvasId,playerConfig,props) {
     // Canvas et engine défini ici
     var canvas = document.getElementById(canvasId);
     var engine = new BABYLON.Engine(canvas, true);
@@ -12,10 +12,10 @@ Game = function(canvasId) {
     _this.actualTime = Date.now();
 
     this.allSpawnPoints = [
-        new BABYLON.Vector3(-20, 5, 0),
-        new BABYLON.Vector3(0, 5, 0),
-        new BABYLON.Vector3(20, 5, 0),
-        new BABYLON.Vector3(-40, 5, 0)
+        new BABYLON.Vector3(-20,5,40),
+        new BABYLON.Vector3(20,5,40),
+        new BABYLON.Vector3(-20,5,-40),
+        new BABYLON.Vector3(20,5,-40)
     ];
 
     // On initie la scène avec une fonction associé à l'objet Game
@@ -30,7 +30,9 @@ Game = function(canvasId) {
     // Accès à Player depuis Game
     this._PlayerData = _player;
 
-    var _arena = new Arena(_this);
+    // On envoie props à Arena
+    var _arena = new Arena(_this,props);
+    this._ArenaData = _arena;
 
     // Les roquettes généré dans ¨Player.js
     this._rockets = [];
@@ -59,6 +61,9 @@ Game = function(canvasId) {
 
         // On calcule les animations des armes
         _this.renderWeapons();
+
+        // On check les props
+        _this._ArenaData._checkProps();
         
         // On rend la scène
         _this.scene.render();
@@ -103,7 +108,6 @@ Game.prototype = {
             if(!meshFound || meshFound.distance < 10){
                 // On vérifie qu'on a bien touché quelque chose
                 if(meshFound.pickedMesh && !meshFound.pickedMesh.isMain){
-                    console.log('test')
                     // On crée une sphere qui représentera la zone d'impact
                     var explosionRadius = BABYLON.Mesh.CreateSphere("sphere", 5.0, 20, this.scene);
                     // On positionne la sphère la ou il y a eu impact

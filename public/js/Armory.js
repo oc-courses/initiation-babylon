@@ -89,5 +89,26 @@ Armory = function(game, player) {
             }
         }
     ];
+    this.bonuses=[
+        {
+            'name': 'mHealth', 
+            'message' : 'Gros pack de santé',
+            'type':'health',
+            'value': 75
+        },
+        {
+            'name':'lHealth',
+            'message' : 'Petit pack de santé',
+            'type':'health',
+            'value': 20
+        },
+        {
+            'name' : 'lArmor',
+            'message' : 'Petit pack d\'armure',
+            'type':'armor',
+            'value': 20
+        }
+    ];
+    this.multiKillAnnoucement=["Double Kill", "Multi Kill", "Mega Kill", "ULTRA KILL", "LUDICROUS", "TEETH SHOWER", "INSANE", "DEMONIC", "HAIL THE HELIX", "ASS CRUSHER", "DIVINE", "GENOCIDE","OMFWTFBBQ", "42" , "HOLY SHIT"];
     return 1
 };

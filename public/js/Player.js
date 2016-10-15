@@ -17,6 +17,13 @@ Player = function(game, canvas) {
     // La vitesse de mouvement
     this.angularSensibility = 200;
 
+    // Compteur de tué à la suite
+    this.killStreak = 0;
+
+    // Zones de textes pour les annonces
+    this.displayAnnouncement = document.getElementById('announcementKill');
+    this.textDisplayAnnouncement = document.getElementById('textAnouncement');
+
     // Axe de mouvement X et Z
     this.axisMovement = [false,false,false,false];
 
@@ -152,10 +159,8 @@ Player = function(game, canvas) {
     // La hauteur du personnage
     _this.originHeight = _this.camera.playerBox.position.clone();
     window.addEventListener("keypress", function(evt) {
-        console.log(_this.camera.canJump)
         if(evt.keyCode === 32){
             if(_this.camera.canJump===true){
-
                 _this.camera.jumpNeed = _this.camera.playerBox.position.y + _this.jumpHeight;
 
                 _this.camera.canJump=false;
@@ -213,7 +218,6 @@ Player.prototype = {
         // On réinitialise la position de la caméra
         this.camera.setTarget(BABYLON.Vector3.Zero());
         this.camera.canJump = true;
-        
         this.game.scene.activeCamera = this.camera;
 
         var hitBoxPlayer = BABYLON.Mesh.CreateBox("hitBoxPlayer", 3, scene);
@@ -312,13 +316,12 @@ Player.prototype = {
         }
         if(playerSelected.jumpNeed){
             // Lerp 
-            console.log('test')
             percentMove = playerSelected.jumpNeed - playerSelected.playerBox.position.y;
             // Axe de mouvement
             up = new BABYLON.Vector3(0,percentMove/4 *  relativeSpeed,0);
             playerSelected.playerBox.moveWithCollisions(up);
             // On vérifie si le joueur a atteind la hauteur désiré
-            if(playerSelected.playerBox.position.y + 1 > playerSelected.jumpNeed){
+            if(playerSelected.playerBox.position.y + 1 > playerSelected.jumpNeed || this.game._ArenaData.plafond.intersectsMesh(playerSelected.playerBox)){
                 // Si c'est le cas, on prépare airTime
                 playerSelected.airTime = 0;
                 playerSelected.jumpNeed = false;
@@ -380,6 +383,12 @@ Player.prototype = {
         }
     },
     playerDead : function(whoKilled) {
+        if(this.displayAnnouncement.classList.contains("annoucementClose")){
+            this.displayAnnouncement.classList.remove("annoucementClose");
+        }
+        this.textDisplayAnnouncement.style.fontSize = '1rem';
+        this.textDisplayAnnouncement.innerText = 'Vous êtes mort';
+
         // Fonction appelé pou annoncer la destruction du joueur
         sendPostMortem(whoKilled);
 
@@ -413,8 +422,86 @@ Player.prototype = {
         var canvas = this.game.scene.getEngine().getRenderingCanvas();
         setTimeout(function(){ 
             newPlayer._initCamera(newPlayer.game.scene, canvas, newPlayer.spawnPoint);
+            newPlayer.displayAnnouncement.classList.add("annoucementClose");
             newPlayer.launchRessurection();
         }, 4000);
+    },
+    newDeadEnnemy : function(nameKilled){
+        var _this = this;
+        // Si le nombre de kill d'affilé est a 0
+        if(this.killStreak === 0){
+            // On fixe la taille du texte à 1rem
+            this.textDisplayAnnouncement.style.fontSize = '1rem';
+            // De base, si aucun nom n'est donné, on dit que Bob a été tué
+            var messageDisplay = "Vous avez tué Bob"
+            if(nameKilled){
+                // Si il y a un nom de donné, on affiche le nom
+                var messageDisplay = "Vous avez tué " + nameKilled;
+            }
+        }else{
+            // On va chercher les messages de kill dans Armory
+            var multiKillAnouncement = this.camera.weapons.Armory.multiKillAnnoucement;
+            // Si on a deja tué plus d'une personne
+            // Et si on a pas atteind la limite des 15 messages
+            if(this.killStreak<=multiKillAnouncement.length){
+                // On affiche le message associé au nombre de kills
+                var messageDisplay = multiKillAnouncement[this.killStreak-1];
+                // On augmente la taille du texte proportionellement à la rareté du message
+                this.textDisplayAnnouncement.style.fontSize = (1+(this.killStreak/1.2))+'rem';
+            }else{
+                // Si on a atteind la limite de message disponible
+                // On affiche le dernier de la liste
+                var messageDisplay = multiKillAnouncement[multiKillAnouncement.length-1]
+            }
+            
+        }
+        // On augmente le nombre de tués à la suite
+        this.killStreak++;
+
+        // Si l'annonceur est fermé
+        if(this.displayAnnouncement.classList.contains("annoucementClose")){
+            // On l'ouvre
+            this.displayAnnouncement.classList.remove("annoucementClose");
+        }
+        // On affiche ce qui est contenu dans messageDisplay
+        this.textDisplayAnnouncement.innerText = messageDisplay;
+
+        // Si le compteur a été créé, on le réinitialise
+        if(this.timerKillStreak){
+            clearTimeout(this.timerKillStreak);
+        }
+        // On set le compteur à 3 secondes. 
+        // Passé ce délai, le jeu fais repasser le compteur de kill à 0 
+        // Et ferme la fenêtre de messages
+        this.timerKillStreak = setTimeout(function(){ 
+            _this.killStreak = 0;
+            
+            if(!_this.displayAnnouncement.classList.contains("annoucementClose")){
+                _this.displayAnnouncement.classList.add("annoucementClose");
+
+            }
+        }, 3000);
+    },
+    // Donner un bonus au joueur
+    givePlayerBonus : function(what,howMany) {
+        
+        var typeBonus = what;
+        var amountBonus = howMany;
+        if(typeBonus === 'health'){
+            if(this.camera.health + amountBonus>100){
+                this.camera.health = 100;
+            }else{
+                this.camera.health += amountBonus;
+            }
+        }else if (typeBonus === 'armor'){
+            if(this.camera.armor + amountBonus>100){
+                this.camera.armor = 100;
+            }else{
+                this.camera.armor += amountBonus;
+            }
+        } 
+        this.textHealth.innerText = this.camera.health;
+        this.textArmor.innerText = this.camera.armor;
     },
     // FONCTIONS MULTIJOUEUR
     sendNewData : function(data){
