@@ -79,16 +79,16 @@ var spawnPointsList = [
 ];
 
 var bonusBoxes = [
-    {x:40, y:1.5,z:-20,t:2,v:1},
-    {x:-40, y:1.5,z:-20,t:0,v:1}
+    {x:33, y:1.5,z:-20,t:2,v:1},
+    {x:-33, y:1.5,z:-20,t:0,v:1}
 ];
 var weaponBoxes = [
-    {x:40, y:1.5,z:20,t:2,v:1},
-    {x:-40, y:1.5,z:20,t:3,v:1}
+    {x:3.5, y:9,z:53,t:2,v:1},
+    {x:-7, y:8,z:-50,t:3,v:1}
 ];
 var ammosBoxes = [
-    {x:-70, y:1.5,z:20,t:2,v:1},
-    {x:-70, y:1.5,z:-20,t:3,v:1},
+    {x:33, y:1.5,z:40,t:2,v:1},
+    {x:-33, y:1.5,z:40,t:3,v:1},
 ];
 
 var props = [bonusBoxes,weaponBoxes,ammosBoxes]

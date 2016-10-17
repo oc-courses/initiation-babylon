@@ -105,7 +105,7 @@ Weapons.prototype = {
 	    for (var i = 0; i < this.Armory.weapons.length; i++) {
 	        if(this.Armory.weapons[i].name === typeWeapon){
 
-	            newWeapon = BABYLON.Mesh.CreateBox('rocketLauncher', 0.5, this.Player.game.scene);
+	            newWeapon = BABYLON.Mesh.CreateBox('weaponHand', 0.5, this.Player.game.scene);
 
 	            // Nous faisons en sorte d'avoir une arme d'apparence plus longue que large
 	            newWeapon.scaling = new BABYLON.Vector3(1,0.7,2);
@@ -388,7 +388,6 @@ Weapons.prototype = {
 	        return;
 	    }
 	    let typeWeapon = this.inventory[this.actualWeapon].typeWeapon;
-	    
 	    // On divise step par la valeur de timaAnimation de l'arme
 	    // On multiplie cette valeur par 180 
 	    let result = (step / this.Armory.weapons[typeWeapon].timeAnimation) * 180;

@@ -284,33 +284,33 @@ Player.prototype = {
         }
         if(playerSelected.axisMovement[0]){
             forward = new BABYLON.Vector3(
-                parseFloat(Math.sin(parseFloat(rotationPoint.y))) * relativeSpeed, 
+                parseFloat(Math.sin(parseFloat(rotationPoint.y))) * relativeSpeed/1.4, 
                 0, 
-                parseFloat(Math.cos(parseFloat(rotationPoint.y))) * relativeSpeed
+                parseFloat(Math.cos(parseFloat(rotationPoint.y))) * relativeSpeed/1.4
             );
             playerSelected.playerBox.moveWithCollisions(forward);
         }
         if(playerSelected.axisMovement[1]){
             backward = new BABYLON.Vector3(
-                parseFloat(-Math.sin(parseFloat(rotationPoint.y))) * relativeSpeed, 
+                parseFloat(-Math.sin(parseFloat(rotationPoint.y))) * relativeSpeed/1.4, 
                 0, 
-                parseFloat(-Math.cos(parseFloat(rotationPoint.y))) * relativeSpeed
+                parseFloat(-Math.cos(parseFloat(rotationPoint.y))) * relativeSpeed/1.4
             );
             playerSelected.playerBox.moveWithCollisions(backward);
         }
         if(playerSelected.axisMovement[2]){
             left = new BABYLON.Vector3(
-                parseFloat(Math.sin(parseFloat(rotationPoint.y) + degToRad(-90))) * relativeSpeed, 
+                parseFloat(Math.sin(parseFloat(rotationPoint.y) + degToRad(-90))) * relativeSpeed/1.4, 
                 0, 
-                parseFloat(Math.cos(parseFloat(rotationPoint.y) + degToRad(-90))) * relativeSpeed
+                parseFloat(Math.cos(parseFloat(rotationPoint.y) + degToRad(-90))) * relativeSpeed/1.4
             );
             playerSelected.playerBox.moveWithCollisions(left);
         }
         if(playerSelected.axisMovement[3]){
             right = new BABYLON.Vector3(
-                parseFloat(-Math.sin(parseFloat(rotationPoint.y) + degToRad(-90))) * relativeSpeed, 
+                parseFloat(-Math.sin(parseFloat(rotationPoint.y) + degToRad(-90))) * relativeSpeed/1.4, 
                 0, 
-                parseFloat(-Math.cos(parseFloat(rotationPoint.y) + degToRad(-90))) * relativeSpeed
+                parseFloat(-Math.cos(parseFloat(rotationPoint.y) + degToRad(-90))) * relativeSpeed/1.4
             );
             playerSelected.playerBox.moveWithCollisions(right);
         }
@@ -327,17 +327,19 @@ Player.prototype = {
                 playerSelected.jumpNeed = false;
             }
         }else{
+
             // On trace un rayon depuis le joueur
             var rayPlayer = new BABYLON.Ray(playerSelected.playerBox.position,new BABYLON.Vector3(0,-1,0));
 
             // On regarde quel est le premier objet qu'on touche
             // On exclue tout les mesh qui appartiennent au joueur
             var distPlayer = this.game.scene.pickWithRay(rayPlayer, function (item) {
-                if (item.name == "hitBoxPlayer" || item.id == "headMainPlayer" || item.id == "bodyGhost"  ||  item.isPlayer)
+                if (item.name == "hitBoxPlayer" || item.id == "headMainPlayer" || item.id == "bodyGhost"  ||  item.isPlayer || item.id == 'weaponHand')
                     return false;
                 else
                     return true;
             });
+            
             // isMain permet de vérifier si c'est le joueur
             if(playerSelected.isMain){
                 var targetHeight = this.originHeight.y;
