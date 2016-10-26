@@ -12,64 +12,128 @@ Arena = function(game,props) {
     light.specular = new BABYLON.Color3(0,0,0);
     light.range = 150;
 
-    var light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 13, 50), scene);
-    light2.diffuse = new BABYLON.Color3(1,0.7,0.5);
-    light2.specular = new BABYLON.Color3(0,0,0);
-    light2.range = 100;
+    var light4 = light.clone('light5');
+    light4.position = new BABYLON.Vector3(35, 15, 120);
+    light4.range = 100;
 
-    var light3 = new BABYLON.PointLight("light3", new BABYLON.Vector3(0, 13, -50), scene);
-    light3.diffuse = new BABYLON.Color3(1,0.7,0.5);
+    var light10 = light.clone('light5');
+    light10.position = new BABYLON.Vector3(-35, 15, 120);
+    light10.range = 100;
+
+    var light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(30, 13, 50), scene);
+    light2.diffuse = new BABYLON.Color3(1,0.5,0.5);
+    light2.specular = new BABYLON.Color3(0,0,0);
+    // light4.position = new BABYLON.Vector3(30);
+    light2.range = 60;
+    light2.intensity = 0.5;
+
+    var light5 = light2.clone('light5');
+    light5.position = new BABYLON.Vector3(-30, 13, 50)
+    light5.intensity = 0.5;
+
+    var light3 = new BABYLON.PointLight("light3", new BABYLON.Vector3(-30, 13, -50), scene);
+    light3.diffuse = new BABYLON.Color3(1,0.5,0.5);
     light3.specular = new BABYLON.Color3(0,0,0);
-    light3.range = 100;
+    light3.range = 60;
+
+    var light6 = light3.clone('light6');
+    light6.position = new BABYLON.Vector3(30, 13, -50);
+
+    var light4 = light3.clone('light5');
+    light4.position = new BABYLON.Vector3(30, 10, 165);
+
+    var light7 = light3.clone('light5');
+    light7.position = new BABYLON.Vector3(-30, 10, 165);
+
+    var light8 = light3.clone('light5');
+    light8.position = new BABYLON.Vector3(30, 10, 70);
+    light8.intensity = 0.5;
+
+    var light9 = light3.clone('light5');
+    light9.position = new BABYLON.Vector3(-30, 10, 70);
+    light9.intensity = 0.5;
+
+    var light10 = light3.clone('light5');
+    light10.position = new BABYLON.Vector3(0, 10, 80);
+    light10.intensity = 0.8;
+    light10.range = 20;
 
 
     // DEFINITION DES MATERIALS
     var materialGround = new BABYLON.StandardMaterial("wallTexture", scene);
     materialGround.diffuseTexture = new BABYLON.Texture("assets/images/castleFloor.png", scene);
     materialGround.diffuseTexture.uScale = 16.0;
-    materialGround.diffuseTexture.vScale = 24.0;
+    materialGround.diffuseTexture.vScale = 42.0;
+    materialGround.maxSimultaneousLights = 20;
 
     var materialWall1 = new BABYLON.StandardMaterial("materialWall", scene);
     materialWall1.diffuseTexture = new BABYLON.Texture("assets/images/stoneFloor.jpg", scene);
     materialWall1.diffuseTexture.uScale = 8.0;
     materialWall1.diffuseTexture.vScale = 2.0;
+    materialWall1.maxSimultaneousLights = 20;
 
     var materialWall2 = new BABYLON.StandardMaterial("materialWall", scene);
     materialWall2.diffuseTexture = new BABYLON.Texture("assets/images/stoneFloor.jpg", scene);
     materialWall2.diffuseTexture.uScale = 2.0;
     materialWall2.diffuseTexture.vScale = 12.0;
+    materialWall2.maxSimultaneousLights = 20;
+
+    var materialWall3 = new BABYLON.StandardMaterial("materialWall", scene);
+    materialWall3.diffuseTexture = new BABYLON.Texture("assets/images/stoneFloor.jpg", scene);
+    materialWall3.diffuseTexture.uScale = 4.0;
+    materialWall3.diffuseTexture.vScale = 4.0;
+    materialWall3.maxSimultaneousLights = 20;
+
+    var materialCeil = new BABYLON.StandardMaterial("materialWall", scene);
+    materialCeil.diffuseTexture = new BABYLON.Texture("assets/images/stoneFloor.jpg", scene);
+    materialCeil.diffuseTexture.uScale = 10.0;
+    materialCeil.diffuseTexture.vScale = 12.0;
+    materialCeil.maxSimultaneousLights = 100;
 
     var materialCrate = new BABYLON.StandardMaterial("materialCrate", scene);
     materialCrate.diffuseTexture = new BABYLON.Texture("assets/images/woodCrate.jpg", scene);
+    materialCrate.maxSimultaneousLights = 20;
 
     var materialPoutre = new BABYLON.StandardMaterial("materialPoutre", scene);
     materialPoutre.diffuseTexture = new BABYLON.Texture("assets/images/wood.jpg", scene);
     materialPoutre.diffuseTexture.uScale = 0.2;
     materialPoutre.diffuseTexture.vScale = 0.2;
+    materialPoutre.maxSimultaneousLights = 20;
 
     var wallPaper = new BABYLON.StandardMaterial("wallPaper", scene);
     wallPaper.diffuseTexture = new BABYLON.Texture("assets/images/wallpaper.jpg", scene);
     wallPaper.diffuseTexture.uScale = 2;
     wallPaper.diffuseTexture.vScale = 2;
+    wallPaper.maxSimultaneousLights = 10;
 
     // DEFINITION DU SOL
-    var ground = BABYLON.Mesh.CreateGround("ground1", 40, 60, 2, scene);
+    var ground = BABYLON.Mesh.CreateGround("ground1", 40, 120, 2, scene);
     ground.scaling = new BABYLON.Vector3(2,10,3);
-    ground.scaling.z = 2;
+    // ground.scaling.z = 2;
     ground.material = materialGround;
     ground.checkCollisions = true;
+
+    ground.position.z = 120;
 
     // DEFINITION DES MURS
     var wall1 = BABYLON.Mesh.CreateBox("wall1", 1, scene);
     wall1.scaling.x = 80;
     wall1.scaling.y = 20;
-    wall1.position.z = 60;
+    wall1.position.z = 180;
     wall1.position.y = 10;
     wall1.material = materialWall1;
     wall1.checkCollisions = true;
 
     var wall2 = wall1.clone('wall2')
     wall2.position.z = -60;
+
+    var wallMid1 = wall1.clone('wallMid1')
+    wallMid1.position.z = 60;
+    wallMid1.position.x = 50;
+
+    var wallMid2 = wall1.clone('wallMid2')
+    wallMid2.position.z = 60;
+    wallMid2.position.x = -50;
 
     var wall3 = BABYLON.Mesh.CreateBox("wall3", 1, scene);
     wall3.scaling.z = 120;
@@ -81,6 +145,13 @@ Arena = function(game,props) {
     
     var wall4 = wall3.clone('wall4')
     wall4.position.x = -40;
+
+    var wall5 = wall3.clone('wall5')
+    wall5.position.z = 120;
+
+    var wall6 = wall3.clone('wall46')
+    wall6.position.x = -40;
+    wall6.position.z = 120;
 
     // CREATION DES POUTRES APPARENTES
     var poutreM = BABYLON.Mesh.CreateBox("poutre", 3, scene);
@@ -100,11 +171,18 @@ Arena = function(game,props) {
 
     // DEFINITION DU PLAFOND
     this.plafond = BABYLON.Mesh.CreateBox("plafond", 1, scene);
-    this.plafond.scaling.z = 120;
+    this.plafond.scaling.z = 240;
     this.plafond.scaling.x = 80;
     this.plafond.position.y = 20;
-    this.plafond.material = materialWall2;
+    this.plafond.position.z = 60;
+    this.plafond.material = materialCeil;
     this.plafond.checkCollisions = true;
+
+    var centerRoom2 = BABYLON.Mesh.CreateBox("centerRoom2", 30, scene);
+    centerRoom2.scaling = new BABYLON.Vector3(2,1,2);
+    centerRoom2.position = new BABYLON.Vector3(0,15,120);
+    centerRoom2.material = materialWall3;
+    centerRoom2.checkCollisions = true;
 
     // DEFINITION DES SPHERES
     var sphere = BABYLON.Mesh.CreateSphere("sphere", 8, 15, scene);
@@ -155,15 +233,27 @@ Arena = function(game,props) {
     cylinder10 = cylinder.clone('colonne');
     cylinder10.position = new BABYLON.Vector3(-25,10,50);
 
+    cylinder11 = cylinder.clone('colonne');
+    cylinder11.position = new BABYLON.Vector3(-25,10,90);
+
+    cylinder12 = cylinder.clone('colonne');
+    cylinder12.position = new BABYLON.Vector3(25,10,90);
+
+    cylinder13 = cylinder.clone('colonne');
+    cylinder13.position = new BABYLON.Vector3(-25,10,150);
+
+    cylinder14 = cylinder.clone('colonne');
+    cylinder14.position = new BABYLON.Vector3(25,10,150);
+
     // DEFINITION DES CAISSES
     var crate1 = BABYLON.Mesh.CreateBox("crate", 5, scene);
-    crate1.position = new BABYLON.Vector3(3,2.5,53);
+    crate1.position = new BABYLON.Vector3(3,2.5,173);
     crate1.rotation = new BABYLON.Vector3(0,(Math.PI*25)/180,0);
     crate1.material = materialCrate;
     crate1.checkCollisions = true;
 
     var crate2 = BABYLON.Mesh.CreateBox("crate", 3, scene);
-    crate2.position = new BABYLON.Vector3(3.5,6.5,53);
+    crate2.position = new BABYLON.Vector3(3.5,6.5,173);
     crate2.rotation = new BABYLON.Vector3(0,(-Math.PI*25)/180,0);
     crate2.material = materialCrate;
     crate2.checkCollisions = true;

@@ -80,21 +80,26 @@ var spawnPointsList = [
 
 var bonusBoxes = [
     {x:33, y:1.5,z:-20,t:2,v:1},
-    {x:-33, y:1.5,z:-20,t:0,v:1}
+    {x:-33, y:1.5,z:-20,t:0,v:1},
+    {x:15, y:1.5,z:155,t:1,v:1},
+    {x:-15, y:1.5,z:155,t:1,v:1}
 ];
 var weaponBoxes = [
-    {x:3.5, y:9,z:53,t:2,v:1},
-    {x:-7, y:8,z:-50,t:3,v:1}
+    {x:3.5, y:9,z:173,t:3,v:1},
+    {x:-7, y:8,z:-50,t:2,v:1}
 ];
 var ammosBoxes = [
-    {x:33, y:1.5,z:40,t:2,v:1},
+    {x:15, y:1.5,z:173,t:2,v:1},
+    {x:-15, y:1.5,z:173,t:2,v:1},
+    {x:15, y:1.5,z:85,t:1,v:1},
+    {x:-15, y:1.5,z:85,t:1,v:1},
     {x:-33, y:1.5,z:40,t:3,v:1},
+    {x:33, y:1.5,z:40,t:1,v:1}
 ];
 
 var props = [bonusBoxes,weaponBoxes,ammosBoxes]
 var countUsers = 0; // number of users since the beginning of the server
 // ================================================
-
 
 
 // ================================================
