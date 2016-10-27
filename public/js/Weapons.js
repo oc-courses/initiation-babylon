@@ -171,7 +171,7 @@ Weapons.prototype = {
 
 			// Cast un rayon au centre de l'écran
 			var direction = this.Player.game.scene.pick(renderWidth/2,renderHeight/2,function (item) {
-			    if (item.name == "weaponHand" || item.id == "headMainPlayer" || item.id == "hitBoxPlayer")
+			    if (item.name == "weaponHand" || item.id == "headMainPlayer" || item.id == "hitBoxPlayer" || item.id == "camera")
 			        return false;
 			    else
 			        return true;
