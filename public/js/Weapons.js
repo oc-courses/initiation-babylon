@@ -163,8 +163,8 @@ Weapons.prototype = {
 			var idWeapon = this.inventory[this.actualWeapon].typeWeapon;
 
 			// Détermine la taille de l'écran
-			var renderWidth = this.Player.game.engine.getRenderWidth(true);
-			var renderHeight = this.Player.game.engine.getRenderHeight(true);
+			var renderWidth = document.getElementById('renderCanvas').offsetWidth;
+			var renderHeight = document.getElementById('renderCanvas').offsetHeight;
 
 			// On récupère les munitions de l'arme
 			var weaponAmmos = this.inventory[this.actualWeapon].ammos;
