@@ -448,9 +448,11 @@ Weapons.prototype = {
 	                this.inventory[i].ammos += numberAmmos;
 	            }
 	            var actualTypeWeapon = this.Armory.weapons[this.inventory[this.actualWeapon].typeWeapon];
-		        this.textAmmos.innerText = this.inventory[this.actualWeapon].ammos;
-		        this.totalTextAmmos.innerText = actualTypeWeapon.setup.ammos.maximum;
-		        this.typeTextWeapon.innerText = actualTypeWeapon.name;
+	            if(this.inventory[this.actualWeapon].typeWeapon === type){
+	            	this.textAmmos.innerText = this.inventory[this.actualWeapon].ammos;
+		        	this.totalTextAmmos.innerText = actualTypeWeapon.setup.ammos.maximum;
+	            }
+		        
 	            break;
 	        }
 	    }
